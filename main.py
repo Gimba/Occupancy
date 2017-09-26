@@ -1,7 +1,7 @@
 import argparse
-import os
 import sys
 
+import os_helper as os
 from input_parser import Inputs
 
 if __name__ == "__main__":
@@ -14,12 +14,12 @@ if __name__ == "__main__":
     parser.add_argument('-hy', '--hydro', help='strip hydrogen', action='store_true')
     args = parser.parse_args()
 
+    # parse inputs into input object
     ip = Inputs(sys.argv)
 
+    # create output folder
+    os.create_output_folder(ip.folder)
 
-def create_output_folder(folder_name):
-    try:
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-    except OSError:
-        raise OSError("Could not create folder %s" % folder_name)
+    # copy input trajectories and topology files to output folder
+    for item in ip.input:
+        os.copy_to_folder(item, ip.folder)
