@@ -20,6 +20,10 @@ class TestInputParser(unittest.TestCase):
         result = Inputs(["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd", "-r", "23"])
         self.assertIsInstance(result, object)
 
+    def test_init_success_input_list(self):
+        result = Inputs(["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd pdb2.prmtop pdb2.inpcrd", "-r", "23"])
+        self.assertIsInstance(result, object)
+
     def test_init_fail(self):
         self.assertRaises(TypeError, Inputs)
 
@@ -51,6 +55,9 @@ class TestInputParser(unittest.TestCase):
     def test_mutation_flag_followed_by_non_int_castable_string(self):
         self.assertRaises(ValueError, Inputs, ["-r", "no_int", "-i", "pdb1.prmtop pdb1.inpcrd"])
 
+    def test_mutation_flag_followed_by_negative_number(self):
+        self.assertRaises(ValueError, Inputs, ["-r", "-1", "-i", "pdb1.prmtop pdb1.inpcrd"])
+
     def test_mutation_flag_followed_by_flag(self):
         self.assertRaises(ValueError, Inputs, ["-r", "-i", "pdb1.prmtop pdb1.inpcrd", "-ate"])
 
@@ -66,6 +73,22 @@ class TestInputParser(unittest.TestCase):
 
     def test_input_flag_followed_by_empty_string(self):
         self.assertRaises(ValueError, Inputs, ["-r", "23", "-i", ""])
+
+    # tests for input list
+    def test_input_list_not_even_number(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd pdb1.prmtop"])
+
+    def test_input_list_not_starting_with_topology(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.inpcrd pdb1.prmtop prod_1.nc pdb1.prmtop"])
+
+    def test_input_list_not_every_second_topology(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd prod_1.nc pdb1.prmtop"])
+
+    def test_input_list_second_element_not_trajectory(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.prmtop pdb1.out pdb1.prmtop prod_1.nc"])
+
+    def test_input_list_not_every_second_trajectory(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc pdb1.prmtop prod_1.out"])
 
 if __name__ == '__main__':
     unittest.main()
