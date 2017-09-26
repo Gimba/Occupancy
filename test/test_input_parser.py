@@ -10,8 +10,11 @@ class TestInputParser(unittest.TestCase):
     def test_init_fail(self):
         self.assertRaises(TypeError, InputParser)
 
-    def test_init_not_list(self):
+    def test_init_with_int(self):
         self.assertRaises(TypeError, InputParser, 1)
+
+    def test_init_with_string(self):
+        self.assertRaises(TypeError, InputParser, "string")
 
 if __name__ == '__main__':
     unittest.main()
