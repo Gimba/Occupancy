@@ -1,4 +1,4 @@
-class Inputs():
+class Inputs:
     def __init__(self, argv):
         self.argv = argv
         if not isinstance(argv,list):
@@ -72,3 +72,8 @@ class Inputs():
                     raise IOError(
                         "Every second element in the input list has to be a topology file (.nc, .inpcrd, .rst,"
                         " .mdrcd). Given %s" % self.input)
+
+        # other flags
+        strip_hydro = bool([s for s in self.argv if "-hy" in s])
+        strip_water = bool([s for s in self.argv if "-w" in s])
+        calc_averages = bool([s for s in self.argv if "-a" in s])
