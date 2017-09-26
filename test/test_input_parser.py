@@ -38,7 +38,7 @@ class TestInputParser(unittest.TestCase):
     def test_init_to_many_arguments(self):
         self.assertRaises(TypeError, Inputs, ["1", "2", "3", "4", "5", "6", "7", "8", "9"])
 
-    # check mutation argument
+    # tests for mutation argument
     def test_mutation_flag_not_present(self):
         self.assertRaises(IOError, Inputs, ["", "23", "-i", "pdb1.prmtop pdb1.inpcrd"])
 
@@ -56,6 +56,16 @@ class TestInputParser(unittest.TestCase):
 
     def test_mutation_flag_followed_by_empty_string(self):
         self.assertRaises(ValueError, Inputs, ["-r", "", "-i", "pdb1.prmtop pdb1.inpcrd"])
+
+    # tests for input list argument
+    def test_input_flag_not_present(self):
+        self.assertRaises(IOError, Inputs, ["-r", "23", "-a", "pdb1.prmtop pdb1.inpcrd"])
+
+    def test_input_flag_followed_by_single_string(self):
+        self.assertRaises(ValueError, Inputs, ["-r", "23", "-i", "pdb1.prmtop"])
+
+    def test_input_flag_followed_by_empty_string(self):
+        self.assertRaises(ValueError, Inputs, ["-r", "23", "-i", ""])
 
 if __name__ == '__main__':
     unittest.main()
