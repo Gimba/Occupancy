@@ -59,7 +59,7 @@ class Inputs:
             if ".prmtop" in self.input[i]:
                 if ".prmtop" not in self.input[i + 2]:
                     raise IOError(
-                        "Every second element in the input list has to be of type prmtop. Given %s" % self.input)
+                        "Every second element in the input list has to be of type prmtop. Given: %s" % self.input)
 
         # check trajectories
         if not any(ext in self.input[1] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
@@ -71,9 +71,12 @@ class Inputs:
                 if not any(ext in self.input[i + 2] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
                     raise IOError(
                         "Every second element in the input list has to be a topology file (.nc, .inpcrd, .rst,"
-                        " .mdrcd). Given %s" % self.input)
+                        " .mdrcd). Given: %s" % self.input)
 
         # other flags
         self.strip_hydro = bool([s for s in self.argv if "-hy" in s])
         self.strip_water = bool([s for s in self.argv if "-w" in s])
         self.calc_averages = bool([s for s in self.argv if "-a" in s])
+
+        # output folder
+        self.folder = "occupancies/"
