@@ -25,3 +25,21 @@ class Inputs():
 
         if self.mutation == -1:
             raise IOError("-r flag not found.")
+
+        # get specified prmtop, trajectory list
+
+        self.input = []
+
+        for i in range(0, len(argv)):
+            if argv[i] == "-i":
+
+                try:
+                    self.input = (argv[i + 1]).split()
+                    if len(self.input) < 2:
+                        raise ValueError("Too few input topologies and trajectories. Given: %s" % len(self.input))
+
+                except ValueError:
+                    raise ValueError("Argument following -i not castable to list. Given: %s" % argv[i + 1])
+
+        if self.input == []:
+            raise IOError("-i flag not found.")
