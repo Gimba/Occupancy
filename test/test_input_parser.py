@@ -17,7 +17,7 @@ class TestInputParser(unittest.TestCase):
         self.assertIsInstance(result, object)
 
     def test_init_success_minimum_mixed_order3(self):
-        result = Inputs(["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd", "-r", "23"])
+        result = Inputs(["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd", "-r", "23", "-w"])
         self.assertIsInstance(result, object)
 
     def test_init_success_input_list(self):

@@ -74,6 +74,6 @@ class Inputs:
                         " .mdrcd). Given %s" % self.input)
 
         # other flags
-        strip_hydro = bool([s for s in self.argv if "-hy" in s])
-        strip_water = bool([s for s in self.argv if "-w" in s])
-        calc_averages = bool([s for s in self.argv if "-a" in s])
+        self.strip_hydro = bool([s for s in self.argv if "-hy" in s])
+        self.strip_water = bool([s for s in self.argv if "-w" in s])
+        self.calc_averages = bool([s for s in self.argv if "-a" in s])
