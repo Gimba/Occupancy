@@ -1,10 +1,12 @@
 import unittest
+
 from input_parser import InputParser
+
 
 class TestInputParser(unittest.TestCase):
 
     def test_init_success(self):
-        result = InputParser(["1","2"])
+        result = InputParser(["1", "2", "3", "4", "5"])
         self.assertIsInstance(result, object)
 
     def test_init_fail(self):
@@ -23,10 +25,10 @@ class TestInputParser(unittest.TestCase):
         self.assertRaises(TypeError, InputParser, [])
 
     def test_init_to_few_arguments(self):
-        self.assertRaises(TypeError, InputParser, ["1"])
+        self.assertRaises(TypeError, InputParser, ["1", "2", "3"])
 
     def test_init_to_many_arguments(self):
-        self.assertRaises(TypeError, InputParser, ["1", "2", "3", "4", "5", "6"])
+        self.assertRaises(TypeError, InputParser, ["1", "2", "3", "4", "5", "6", "7", "8", "9"])
 
 
 if __name__ == '__main__':
