@@ -23,3 +23,6 @@ if __name__ == "__main__":
     # copy input trajectories and topology files to output folder
     for item in ip.input:
         os.copy_to_folder(item, ip.folder)
+
+    # change to results folder
+    os.change_to_folder(ip.folder)
