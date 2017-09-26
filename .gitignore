@@ -1,3 +1,5 @@
 /.idea
 /temp
 *.pyc
+/input_files
+/occupancies
