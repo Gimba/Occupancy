@@ -14,3 +14,7 @@ def copy_to_folder(f, folder):
         os.system("cp " + f + " " + folder)
     except OSError:
         raise OSError("Could not copy %s to folder %s" % f % folder)
+
+
+def change_to_folder(folder):
+    os.chdir(os.getcwd() + '/' + folder)
