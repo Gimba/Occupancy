@@ -1,5 +1,6 @@
 import unittest
 
+import main
 from input_parser import Inputs
 
 
@@ -89,6 +90,10 @@ class TestInputParser(unittest.TestCase):
 
     def test_input_list_not_every_second_trajectory(self):
         self.assertRaises(IOError, Inputs, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc pdb1.prmtop prod_1.out"])
+
+    # folder name creation
+    def test_output_folder_not_created(self):
+        self.assertRaises(OSError, main.create_output_folder("*)"))
 
 if __name__ == '__main__':
     unittest.main()
