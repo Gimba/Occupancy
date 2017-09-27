@@ -24,6 +24,12 @@ class Tests(unittest.TestCase):
         result = Input(["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd pdb2.prmtop pdb2.inpcrd", "-r", "23"])
         self.assertIsInstance(result, object)
 
+    def test_init_success_input_list_frames_selected(self):
+        result = Input(
+            ["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd pdb2.prmtop pdb2.nc 1 200 pdb3.prmtop pdb3.nc 1 1", "-r",
+             "23"])
+        self.assertIsInstance(result, object)
+
     def test_init_fail(self):
         self.assertRaises(TypeError, Input)
 
@@ -76,19 +82,19 @@ class Tests(unittest.TestCase):
 
     # tests for input list
     def test_input_list_not_even_number(self):
-        self.assertRaises(IOError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd pdb1.prmtop"])
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd pdb1.prmtop"])
 
     def test_input_list_not_starting_with_topology(self):
-        self.assertRaises(IOError, Input, ["-r", "23", "-i", "pdb1.inpcrd pdb1.prmtop prod_1.nc pdb1.prmtop"])
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.inpcrd pdb1.prmtop prod_1.nc pdb1.prmtop"])
 
-    def test_input_list_not_every_second_topology(self):
-        self.assertRaises(IOError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd prod_1.nc pdb1.prmtop"])
+    def test_input_list_topology_not_followed_by_trajectory(self):
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop 1 2 pdb1.inpcrd prod_1.nc pdb1.prmtop"])
 
-    def test_input_list_second_element_not_trajectory(self):
-        self.assertRaises(IOError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.out pdb1.prmtop prod_1.nc"])
+    def test_input_list_trajectory_not_followed_by_topology(self):
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc prod_1.nc pdb2.prmtop"])
 
-    def test_input_list_not_every_second_trajectory(self):
-        self.assertRaises(IOError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc pdb1.prmtop prod_1.out"])
+    def test_input_list_trajectory_not_followed_by_int_castable(self):
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc last last pdb1.prmtop prod_1.out"])
 
 
         ## test pdb class ##
