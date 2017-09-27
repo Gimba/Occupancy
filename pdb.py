@@ -44,3 +44,14 @@ class Pdb:
         residue_numbers = [int(x) for x in residue_numbers]
         residue_numbers = sorted(residue_numbers)
         return residue_numbers
+
+    # returns all non-water residue numbers
+    def get_non_solvent_residue_numbers(self):
+        residue_numbers = []
+        for item in self.atoms:
+            if 'WAT' not in item['residue_type']:
+                residue_numbers.append(item['residue_number'])
+        residue_numbers = list(set(residue_numbers))
+        residue_numbers = [int(x) for x in residue_numbers]
+        residue_numbers = sorted(residue_numbers)
+        return residue_numbers
