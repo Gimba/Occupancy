@@ -30,3 +30,9 @@ class Pdb:
                         "Key %s not found. Available keys: 'number', 'type', 'residue_type', 'residue_number'"
                         ", 'x', 'y', 'z'" % key)
         return out
+
+    # returns list of atom types
+    def get_atom_types(self):
+        types = self.get("type")
+        types = list(set(types))
+        return types
