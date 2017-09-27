@@ -1,4 +1,4 @@
-class Inputs:
+class Input:
     def __init__(self, argv):
         self.argv = argv
         if not isinstance(argv,list):
