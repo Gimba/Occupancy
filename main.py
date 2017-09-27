@@ -30,5 +30,6 @@ if __name__ == "__main__":
     # os.change_to_folder(ip.folder)
 
     # generate pdb objects from topologies
-    pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0], ip.input[1], ip.strip_water, ip.strip_hydro)
+    pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], ip.input[0][2], ip.input[0][3],
+                                               ip.strip_water, ip.strip_hydro)
     pdb_unmutated = Pdb(pdb_file_name_unmutated)

@@ -28,7 +28,7 @@ class Input:
         if self.mutation == -1:
             raise IOError("-r flag not found.")
 
-        # get specified prmtop, trajectory list
+        # get specified prmtop, trajectory list with start and end frames
 
         self.input = []
 
@@ -55,17 +55,6 @@ class Input:
         if ".prmtop" not in self.input[0]:
             raise ValueError("List of inputs has to start with a topology (prmtop) file")
 
-        # for i in range(0, len(self.input) - 2):
-        #     if ".prmtop" in self.input[i]:
-        #         if ".prmtop" not in self.input[i + 2]:
-        #             raise ValueError(
-        #                 "Every second element in the input list has to be of type prmtop. Given: %s" % self.input)
-
-        # check trajectories
-        # if not any(ext in self.input[1] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
-        #     raise IOError(
-        #         "Second input has to be a trajectory file (.nc, .inpcrd, .rst, .mdrcd). Given %s" % self.input[1])
-
         for i in range(1, len(self.input)):
             if any(ext in self.input[i] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
                 if i + 1 < len(self.input):
@@ -75,6 +64,19 @@ class Input:
                                 raise ValueError(
                                     "Trajectory file has to be followed by a topology or start and end frame. Given: "
                                     "%s" % self.input[i + 1])
+
+        # add start and end frames to trajectories
+        temp_list = []
+        for i in range(0, len(self.input)):
+            if ".prmtop" in self.input[i]:
+                item = [self.input[i], self.input[i + 1], "", ""]
+                if i + 3 < len(self.input):
+                    if self.input[i + 2].isdigit() and self.input[i + 3].isdigit():
+                        item[2] = self.input[i + 2]
+                        item[3] = self.input[i + 3]
+                temp_list.append(item)
+        self.input = temp_list
+
 
         # other flags
         self.strip_hydro = bool([s for s in self.argv if "-hy" in s])
