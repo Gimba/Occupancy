@@ -3,7 +3,7 @@ import sys
 
 import cpptraj_helper as cpp
 import os_helper as os
-from input_parser import Inputs
+from input import Input
 from pdb import Pdb
 
 if __name__ == "__main__":
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # parse inputs into input object
-    ip = Inputs(sys.argv)
+    ip = Input(sys.argv)
 
     # create output folder
     os.create_output_folder(ip.folder)

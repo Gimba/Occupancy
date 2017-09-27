@@ -11,3 +11,22 @@ class Pdb:
                 if 'ATOM' in line[0]:
                     self.atoms.append({'number': line[1], 'type': line[2], 'residue_type': line[3], 'residue_number':
                         line[4], 'x': line[5], 'y': line[6], 'z': line[7]})
+
+    # returns a list of the specified keys, which can be given as a list or a string
+    def get(self, keys):
+        if isinstance(keys, str):
+            keys = keys.split()
+
+        if not isinstance(keys, list):
+            raise ValueError("Keys have to be given as strings (e.g. \"number type\") or list (e.g. \"[\'number\'"
+                             ", \'type\']\")")
+        out = []
+        for item in self.atoms:
+            for key in keys:
+                if key in item.keys():
+                    out.append(item[key])
+                else:
+                    raise ValueError(
+                        "Key %s not found. Available keys: 'number', 'type', 'residue_type', 'residue_number'"
+                        ", 'x', 'y', 'z'" % key)
+        return out
