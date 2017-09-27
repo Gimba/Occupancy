@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+import cpptraj_helper as cpp
 import os_helper as os
 from input_parser import Inputs
 
@@ -21,8 +22,11 @@ if __name__ == "__main__":
     os.create_output_folder(ip.folder)
 
     # copy input trajectories and topology files to output folder
-    for item in ip.input:
-        os.copy_to_folder(item, ip.folder)
+    # for item in ip.input:
+    # os.copy_to_folder(item, ip.folder)
 
     # change to results folder
-    os.change_to_folder(ip.folder)
+    # os.change_to_folder(ip.folder)
+
+    # generate pdb objects from topologies
+    pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0], ip.input[1], ip.strip_water, ip.strip_hydro)
