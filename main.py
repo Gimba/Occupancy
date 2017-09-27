@@ -4,6 +4,7 @@ import sys
 import cpptraj_helper as cpp
 import os_helper as os
 from input_parser import Inputs
+from pdb import Pdb
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -30,3 +31,4 @@ if __name__ == "__main__":
 
     # generate pdb objects from topologies
     pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0], ip.input[1], ip.strip_water, ip.strip_hydro)
+    pdb_unmutated = Pdb(pdb_file_name_unmutated)
