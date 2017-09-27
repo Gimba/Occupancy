@@ -48,30 +48,33 @@ class Input:
 
         ## check input list ##
         if len(self.input) % 2 == 1:
-            raise IOError("Every topology has to be followed by a trajectory, therefore the number of inputs has to be"
-                          "even. Given inputs: %d" % len(self.input))
+            raise ValueError("Every topology has to be followed by a trajectory or a start and and frame (e.g. 1 200), "
+                             "therefore the number of inputs has to be even. Given inputs: %d" % len(self.input))
 
         # check topologies
         if ".prmtop" not in self.input[0]:
-            raise IOError("List of inputs has to start with a topology (prmtop) file")
+            raise ValueError("List of inputs has to start with a topology (prmtop) file")
 
-        for i in range(0, len(self.input) - 2):
-            if ".prmtop" in self.input[i]:
-                if ".prmtop" not in self.input[i + 2]:
-                    raise IOError(
-                        "Every second element in the input list has to be of type prmtop. Given: %s" % self.input)
+        # for i in range(0, len(self.input) - 2):
+        #     if ".prmtop" in self.input[i]:
+        #         if ".prmtop" not in self.input[i + 2]:
+        #             raise ValueError(
+        #                 "Every second element in the input list has to be of type prmtop. Given: %s" % self.input)
 
         # check trajectories
-        if not any(ext in self.input[1] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
-            raise IOError(
-                "Second input has to be a trajectory file (.nc, .inpcrd, .rst, .mdrcd). Given %s" % self.input[1])
+        # if not any(ext in self.input[1] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
+        #     raise IOError(
+        #         "Second input has to be a trajectory file (.nc, .inpcrd, .rst, .mdrcd). Given %s" % self.input[1])
 
-        for i in range(1, len(self.input) - 2):
+        for i in range(1, len(self.input)):
             if any(ext in self.input[i] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
-                if not any(ext in self.input[i + 2] for ext in [".inpcrd", ".nc", ".mdcrd", ".rst"]):
-                    raise IOError(
-                        "Every second element in the input list has to be a topology file (.nc, .inpcrd, .rst,"
-                        " .mdrcd). Given: %s" % self.input)
+                if i + 1 < len(self.input):
+                    if ".prmtop" not in self.input[i + 1]:
+                        if i + 2 < len(self.input):
+                            if not self.input[i + 1].isdigit() or not self.input[i + 2].isdigit():
+                                raise ValueError(
+                                    "Trajectory file has to be followed by a topology or start and end frame. Given: "
+                                    "%s" % self.input[i + 1])
 
         # other flags
         self.strip_hydro = bool([s for s in self.argv if "-hy" in s])
