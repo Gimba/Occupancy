@@ -36,3 +36,11 @@ class Pdb:
         types = self.get("type")
         types = list(set(types))
         return types
+
+    # returns list of residue numbers as integers
+    def get_residue_numbers(self):
+        residue_numbers = self.get("residue_number")
+        residue_numbers = list(set(residue_numbers))
+        residue_numbers = [int(x) for x in residue_numbers]
+        residue_numbers = sorted(residue_numbers)
+        return residue_numbers
