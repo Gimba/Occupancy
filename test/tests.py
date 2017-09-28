@@ -1,9 +1,11 @@
 import unittest
 
+import cpptraj_helper as cpp
 from input import Input
 
 
 class Tests(unittest.TestCase):
+    ## tests for input.py
     def test_init_success_minimum(self):
         result = Input(["-r", "23", "-i", "pdb1.prmtop pdb1.inpcrd"])
         self.assertIsInstance(result, object)
@@ -96,9 +98,10 @@ class Tests(unittest.TestCase):
     def test_input_list_trajectory_not_followed_by_int_castable(self):
         self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc last last pdb1.prmtop prod_1.out"])
 
-
-        ## test pdb class ##
-
+    ## tests for cpptraj_helper.py
+    def test_specified_frames_exeeding_trajectory_frames(self):
+        self.assertRaises(IOError, cpp.get_occupancy_of_atoms("input_files/F2196A.prmtop", "input_files/F2196A.inpcrd",
+                                                              "1", "100", ["47@C", "24@CG2"], 1, 1))
 
 if __name__ == '__main__':
     unittest.main()
