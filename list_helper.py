@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+import cairo
+from PyPDF2 import PdfFileMerger
 
 def output_2D_list(list2d):
     output = ""
@@ -70,3 +71,236 @@ def reformat_occupancies(occupancies):
     occ_list = [header] + occ_list
     occ_list = [top_header] + occ_list
     return occ_list
+
+
+# calculate percentages and total values of occupancies
+def prepare_output(output, avrgs):
+    output = output.splitlines()
+    init_tot = 0
+    muta_tot = 0
+    sim_tot = 0
+    init_res = 0
+    muta_res = 0
+    sim_res = 0
+
+    if avrgs:
+        avg_init_tot = 0
+        avg_sim_tot = 0
+        avg_muta_tot = 0
+        avg_init_res = 0
+        avg_sim_res = 0
+        avg_muta_res = 0
+
+    last_res = ""
+    out = ""
+
+    for line in output:
+        l = line
+        if line[0] == ':':
+            line = line.split(',')
+            init_tot += float(line[1])
+            muta_tot += float(line[2])
+            sim_tot += float(line[3])
+
+            if avrgs:
+                avg_init_tot += float(line[4])
+                avg_muta_tot += float(line[5])
+                avg_sim_tot += float(line[6])
+
+            res = line[0].split('@')[0]
+            if last_res == "":
+                last_res = res
+
+            # behavior if a new residue starts
+            if last_res != res:
+                last_res = res
+
+                # add line with sum of contacts a selected residue
+                out += "SUM," + str(init_res) + "," + str(muta_res) + "," + str(sim_res)
+                if avrgs:
+                    out += "," + str(avg_init_res) + "," + str(avg_muta_res) + "," + str(avg_sim_res)
+                out += "\n"
+
+                # add line with percentage values
+                muta_res_per = (init_res - muta_res) * 100 / init_res
+                sim_res_per = (init_res - sim_res) * 100 / init_res
+
+                out += ",," + str(round(muta_res_per, 2)) + "%," + str(round(sim_res_per, 2)) + "%"
+                if avrgs:
+                    avg_muta_res_per = (avg_init_res - avg_muta_res) * 100 / avg_init_res
+                    avg_sim_res_per = (avg_init_res - avg_sim_res) * 100 / avg_init_res
+                    out += ",," + str(round(avg_muta_res_per, 2)) + "%," + str(round(avg_sim_res_per, 2)) + "%"
+                out += "\n\n"
+
+                # reset values for summing up residue contacts to start from first values of new residue
+                init_res = float(line[1])
+                muta_res = float(line[2])
+                sim_res = float(line[3])
+                if avrgs:
+                    avg_init_res = float(line[4])
+                    avg_muta_res = float(line[5])
+                    avg_sim_res = float(line[6])
+            else:
+                # add up values for the current residue
+                init_res += float(line[1])
+                muta_res += float(line[2])
+                sim_res += float(line[3])
+
+                if avrgs:
+                    avg_init_res += float(line[4])
+                    avg_muta_res += float(line[5])
+                    avg_sim_res += float(line[6])
+
+        out += l + "\n"
+
+    # handling of last residue
+    out += "SUM," + str(init_res) + "," + str(muta_res) + "," + str(sim_res)
+    if avrgs:
+        out += "," + str(avg_init_res) + "," + str(avg_muta_res) + "," + str(avg_sim_res)
+    out += "\n"
+
+    # add line with percentage values
+    muta_res_per = (init_res - muta_res) * 100 / init_res
+    sim_res_per = (init_res - sim_res) * 100 / init_res
+    out += ",," + str(round(muta_res_per, 2)) + "%," + str(round(sim_res_per, 2)) + "%"
+    if avrgs:
+        avg_muta_res_per = (avg_init_res - avg_muta_res) * 100 / avg_init_res
+        avg_sim_res_per = (avg_init_res - avg_sim_res) * 100 / avg_init_res
+        out += ",," + str(round(avg_muta_res_per, 2)) + "%," + str(round(avg_sim_res_per, 2)) + "%"
+    out += "\n\n"
+
+    # total values at the end of document
+    out += "total," + str(init_tot) + "," + str(muta_tot) + "," + str(sim_tot)
+    if avrgs:
+        out += "," + str(round(avg_init_tot, 2)) + "," + str(round(avg_sim_tot, 2)) + "," + str(round(avg_muta_tot, 2))
+    out += "\n"
+
+    # total percentages
+    muta_tot_per = (init_tot - muta_tot) * 100 / init_tot
+    sim_tot_per = (init_tot - sim_tot) * 100 / init_tot
+
+    out += ",," + str(round(muta_tot_per, 2)) + "%," + str(round(sim_tot_per, 2)) + "%"
+    if avrgs:
+        avg_muta_tot_per = (avg_init_tot - avg_muta_tot) * 100 / avg_init_tot
+        avg_sim_tot_per = (avg_init_tot - avg_sim_tot) * 100 / avg_init_tot
+        out += ",," + str(round(avg_muta_tot_per, 2)) + "%," + str(
+            round(avg_sim_tot_per, 2)) + "%"
+    out += "\n"
+
+    return out
+
+
+# write occupancy data as text file
+def write_output(output, file_name):
+    with open(file_name, 'w') as f:
+        f.write(output)
+
+
+# write occupancy data to pdf file
+def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated_residue):
+    file_name = investigated_residue
+    f = file_name + '0_occupancies.pdf'
+    surface = cairo.PDFSurface(f, 595, 842)
+    ctx = cairo.Context(surface)
+
+    # title
+    ctx.set_font_size(20)
+    ctx.set_source_rgb(0, 0, 0)
+    ctx.move_to(20, 30)
+    title = investigated_residue
+
+    if hydro:
+        title += " - hydrogen stripped"
+
+    if wat:
+        title += " - water stripped"
+
+    ctx.show_text(title)
+
+    ctx.set_font_size(12)
+    y = 50
+    counter = 0
+    for item in input_list:
+        ctx.move_to(20, y)
+        ctx.show_text("#" + str(counter) + " " + ', '.join(item))
+        y += 14
+        counter += 1
+
+    ctx.set_font_size(20)
+    x = 20
+    y = y + 15
+    ctx.set_font_size(14)
+    output = output.splitlines()
+    pages = 0
+    files = []
+
+    for line in output:
+        line = line.split(',')
+        ctx.set_source_rgb(0, 0, 0)
+
+        ctx.move_to(x, y)
+        ctx.show_text(line[0])
+        x += 120
+
+        # coloring
+        if len(line[0]) > 0 and line[0][0] == ':' or line[0] == 'SUM':
+            ctx.move_to(x, y)
+            ctx.show_text(line[1])
+            x += 75
+            ctx.set_source_rgb(0, 0, 0)
+
+            if float(line[1]) > float(line[2]):
+                ctx.set_source_rgb(0.9, 0, 0)
+            if float(line[1]) < float(line[2]):
+                ctx.set_source_rgb(0, 0.7, 0)
+            ctx.move_to(x, y)
+            ctx.show_text(line[2])
+            x += 75
+            ctx.set_source_rgb(0, 0, 0)
+
+            if float(line[1]) > float(line[3]):
+                ctx.set_source_rgb(0.9, 0, 0)
+            if float(line[1]) < float(line[3]):
+                ctx.set_source_rgb(0, 0.7, 0)
+            ctx.move_to(x, y)
+            ctx.show_text(line[3])
+            x += 75
+            ctx.set_source_rgb(0, 0, 0)
+
+            if avrgs:
+                ctx.move_to(x, y)
+                ctx.show_text(str(round(float(line[4]), 2)))
+                x += 75
+                ctx.move_to(x, y)
+                ctx.show_text(str(round(float(line[5]), 2)))
+                x += 75
+                ctx.move_to(x, y)
+                ctx.show_text(str(round(float(line[6]), 2)))
+                x += 75
+        else:
+            for item in line[1:]:
+                ctx.move_to(x, y)
+                ctx.show_text(item)
+                x += 75
+
+        y += 16
+        x = 20
+        if y > 820:
+            pages += 1
+            files.append(f)
+            surface.finish()
+            surface.flush()
+            f = file_name + str(pages) + '_occupancies.pdf'
+            files.append(f)
+            surface = cairo.PDFSurface(f, 595, 842)
+            ctx = cairo.Context(surface)
+            ctx.set_font_size(14)
+            y = 30
+
+    surface.finish()
+    surface.flush()
+
+    merger = PdfFileMerger()
+    for f in files:
+        merger.append(f, 'rb')
+    merger.write(file_name + '_occupancies.pdf')
