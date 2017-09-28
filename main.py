@@ -22,21 +22,24 @@ if __name__ == "__main__":
     os.create_output_folder(ip.folder)
 
     # copy input trajectories and topology files to output folder
-    # for item in ip.input:
-    # os.copy_to_folder(item, ip.folder)
+    for item in ip.input:
+        os.copy_to_folder(item[0], ip.folder)
+        os.copy_to_folder(item[1], ip.folder)
 
     # change to results folder
-    # os.change_to_folder(ip.folder)
+    os.change_to_folder(ip.folder)
+    # set new file paths
+    ip.set_file_paths_to_output_folder()
 
     # generate pdb objects from topologies
     # pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], ip.input[0][2], ip.input[0][3],
     #                                            ip.strip_water, ip.strip_hydro)
     # pdb_unmutated = Pdb(pdb_file_name_unmutated)
 
-    initial_contact_atoms = cpp.get_residue_contacting_atoms(ip.input[0][0], ip.input[0][1], ip.mutation, ip.strip_water
-                                                             , ip.strip_hydro)
+    initial_contact_atoms = cpp.get_residue_contacting_atoms(ip.input[0][0], ip.input[0][1], ip.input[0][2],
+                                                             ip.input[0][3], ip.mutation, ip.strip_water,
+                                                             ip.strip_hydro)
     occupancies = []
     for item in ip.input:
         occupancies.append(cpp.get_occupancy_of_atoms(item[0], item[1], item[2], item[3], initial_contact_atoms,
                                                       ip.mutation, ip.strip_water))
-        break

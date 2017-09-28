@@ -54,8 +54,10 @@ def generate_pdb(prmtop, trajin, start_frame, end_frame, strip_water, strip_hydr
 
 
 # get atoms in contact with atoms of the specified residue using the first frame of the trajectory
-def get_residue_contacting_atoms(prmtop, trajin, residue, strip_water, strip_hydrogen):
-    model_contacts = create_contact_cpptraj(trajin, "1", "1", [residue], ['1-500000'], strip_water, strip_hydrogen)
+def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue, strip_water, strip_hydrogen):
+    model_contacts = create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, [residue], ['1-500000'],
+                                            strip_water,
+                                            strip_hydrogen)
     run_cpptraj(prmtop, trajin, model_contacts[0])
     contact_atoms_init = get_atom_contacts(model_contacts[1], residue)
     atoms = extract_atoms(contact_atoms_init)
@@ -66,10 +68,10 @@ def get_residue_contacting_atoms(prmtop, trajin, residue, strip_water, strip_hyd
 # e.g. nativecontacts :47@C :1-5000 writecontacts F2196A_contacts.dat distance 3.9). The name fo the file is the
 # given trajin without file extension followed by "_contacts.cpptraj" (e.g. trajin = F2196A.nc ->
 # F2196A_contacts.cpptraj). Water, Chlor and hydrogen stripped
-def create_contact_cpptraj(trajin, start_frame, end_frame, mask1, mask2, wat, hydro):
+def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2, wat, hydro):
     t = trajin.split()
-    cpptraj_file = t[0].split('.')[0].strip("\"") + "_" + t[0].split('.')[1] \
-                   + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
+    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
+        "\"") + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
 
     out_file = cpptraj_file.replace('cpptraj', 'dat')
 
@@ -131,7 +133,7 @@ def extract_atoms(atoms):
 
 # get the occupancy of the given atoms
 def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_water, strip_hydrogen):
-    cpptraj_file = create_contact_cpptraj(trajin, start_frame, end_frame, atoms, ['1-500000'], strip_water,
+    cpptraj_file = create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, atoms, ['1-500000'], strip_water,
                                           strip_hydrogen)
     trajin = "\"" + trajin + " " + start_frame + " " + end_frame + "\""
     run_cpptraj(prmtop, trajin, cpptraj_file[0])
