@@ -222,7 +222,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
     counter = 0
     for item in input_list:
         ctx.move_to(20, y)
-        ctx.show_text("#" + str(counter) + " " + ', '.join(item))
+        ctx.show_text("#" + str(counter) + " " + ''.join(item))
         y += 14
         counter += 1
 
