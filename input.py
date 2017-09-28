@@ -99,3 +99,11 @@ class Input:
         for item in self.input:
             item[0] = item[0].split("/")[-1]
             item[1] = item[1].split("/")[-1]
+
+    # get list of file names
+    def get_file_names(self):
+        file_names = []
+        for item in self.input:
+            file_names.append(" ".join(item))
+
+        return file_names
