@@ -74,6 +74,8 @@ class Input:
                     if self.input[i + 2].isdigit() and self.input[i + 3].isdigit():
                         item[2] = self.input[i + 2]
                         item[3] = self.input[i + 3]
+                        if int(item[2]) > int(item[3]):
+                            raise ValueError("Start frame higher than end frame. Given: %s " % item[2])
                 temp_list.append(item)
         self.input = temp_list
 
