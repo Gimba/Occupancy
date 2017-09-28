@@ -94,9 +94,8 @@ class Input:
         # output folder
         self.folder = "occupancies/"
 
+    # change path of files to output folder
     def set_file_paths_to_output_folder(self):
-        temp = []
         for item in self.input:
             item[0] = item[0].split("/")[-1]
             item[1] = item[1].split("/")[-1]
-            temp.append(item)
