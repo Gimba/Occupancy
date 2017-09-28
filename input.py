@@ -69,7 +69,7 @@ class Input:
         temp_list = []
         for i in range(0, len(self.input)):
             if ".prmtop" in self.input[i]:
-                item = [self.input[i], self.input[i + 1], "", ""]
+                item = [self.input[i], self.input[i + 1], "1", "1"]
                 if i + 3 < len(self.input):
                     if self.input[i + 2].isdigit() and self.input[i + 3].isdigit():
                         item[2] = self.input[i + 2]
