@@ -49,3 +49,24 @@ def c_del(lst, column):
         outlist.append(outitem)
 
     return outlist
+
+
+# create list with residue@atom_type and occupancies
+def reformat_occupancies(occupancies):
+    occ_list = []
+    for item in occupancies:
+        if not occ_list:
+            occ_list = c_get(item, 0)
+        occ_list = c_bind(occ_list, c_get(item, 1))
+
+    res_numb = c_get(occ_list, 0)
+    occ_list = c_del(occ_list, 0)
+    occ_list = c_bind(res_numb, occ_list)
+    occ_list = sorted(occ_list)
+
+    top_header = ["", "", "Occupancies", ""]
+    header = ["Atom", "#0", "#1", "#2"]
+
+    occ_list = [header] + occ_list
+    occ_list = [top_header] + occ_list
+    return occ_list
