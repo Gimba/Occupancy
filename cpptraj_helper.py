@@ -69,7 +69,7 @@ def get_residue_contacting_atoms(prmtop, trajin, residue, strip_water, strip_hyd
 def create_contact_cpptraj(trajin, start_frame, end_frame, mask1, mask2, wat, hydro):
     t = trajin.split()
     cpptraj_file = t[0].split('.')[0].strip("\"") + "_" + t[0].split('.')[1] \
-                   + start_frame + "_" + end_frame + "_contacts.cpptraj"
+                   + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
 
     out_file = cpptraj_file.replace('cpptraj', 'dat')
 
@@ -133,14 +133,12 @@ def extract_atoms(atoms):
 def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_water, strip_hydrogen):
     cpptraj_file = create_contact_cpptraj(trajin, start_frame, end_frame, atoms, ['1-500000'], strip_water,
                                           strip_hydrogen)
-
+    trajin = "\"" + trajin + " " + start_frame + " " + end_frame + "\""
     run_cpptraj(prmtop, trajin, cpptraj_file[0])
     contacts_init = get_atom_contacts(cpptraj_file[1], '')
 
     # calculate number of frames if range is specified in trajectory
-    frames = 1
-    if start_frame.isdigit() and end_frame.isdigit():
-        frames = int(end_frame) - int(start_frame)
+    frames = int(end_frame) - int(start_frame) + 1
 
     occupancy = get_atom_occupancy(contacts_init, frames)
 
