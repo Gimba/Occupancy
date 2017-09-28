@@ -29,14 +29,11 @@ if __name__ == "__main__":
 
     # change to results folder
     os.change_to_folder(ip.folder)
+
     # set new file paths
     ip.set_file_paths_to_output_folder()
 
-    # generate pdb objects from topologies
-    # pdb_file_name_unmutated = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], ip.input[0][2], ip.input[0][3],
-    #                                            ip.strip_water, ip.strip_hydro)
-    # pdb_unmutated = Pdb(pdb_file_name_unmutated)
-
+    ##### calculate occupancies #####
     initial_contact_atoms = cpp.get_residue_contacting_atoms(ip.input[0][0], ip.input[0][1], ip.input[0][2],
                                                              ip.input[0][3], ip.mutation, ip.strip_water,
                                                              ip.strip_hydro)
@@ -52,7 +49,7 @@ if __name__ == "__main__":
     output = prepare_output(output, 0)
     # output = add_residue_types(output, residues)
 
-    # write output
+    ##### output data #####
     input_file_names = ip.get_file_names()
     write_output(output, ip.mutation + '_occupancies.dat')
     output_to_pdf(output, ip.mutation + '_occupancies.dat', 0, ip.strip_water, ip.strip_hydro, input_file_names,
