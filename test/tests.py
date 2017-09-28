@@ -1,6 +1,7 @@
+import os as os
 import unittest
 
-import cpptraj_helper as cpp
+import os_helper as myos
 from input import Input
 
 
@@ -31,6 +32,30 @@ class Tests(unittest.TestCase):
             ["-a", "-hy", "-i", "pdb1.prmtop pdb1.inpcrd pdb2.prmtop pdb2.nc 1 200 pdb3.prmtop pdb3.nc 1 1", "-r",
              "23"])
         self.assertIsInstance(result, object)
+
+    def test_input_list_absolute_path(self):
+        ip = Input(
+            ["-a", "-hy", "-i",
+             "/l_mnt/scratch/u/rm001/Occupancy/input_files/F2196A.prmtop /l_mnt/scratch/u/rm001/Occupancy/input_files/F2196A.inpcrd 1 1",
+             "-r",
+             "23"])
+        myos.create_output_folder(ip.folder)
+        myos.copy_to_folder(ip.input[0][0], ip.folder)
+        ip.set_file_paths_to_output_folder()
+        self.assertTrue(os.path.isfile(ip.input[0][0]))
+        os.system("rm -rf " + ip.folder)
+
+    def test_input_list_relative_path(self):
+        ip = Input(
+            ["-a", "-hy", "-i",
+             "../input_files/F2196A.prmtop ../input_files/F2196A.inpcrd 1 1",
+             "-r",
+             "23"])
+        myos.create_output_folder(ip.folder)
+        myos.copy_to_folder(ip.input[0][0], ip.folder)
+        ip.set_file_paths_to_output_folder()
+        self.assertTrue(os.path.isfile(ip.input[0][0]))
+        os.system("rm -rf " + ip.folder)
 
     def test_init_fail(self):
         self.assertRaises(TypeError, Input)
@@ -98,10 +123,12 @@ class Tests(unittest.TestCase):
     def test_input_list_trajectory_not_followed_by_int_castable(self):
         self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc last last pdb1.prmtop prod_1.out"])
 
-    ## tests for cpptraj_helper.py
-    def test_specified_frames_exeeding_trajectory_frames(self):
-        self.assertRaises(IOError, cpp.get_occupancy_of_atoms("input_files/F2196A.prmtop", "input_files/F2196A.inpcrd",
-                                                              "1", "100", ["47@C", "24@CG2"], 1, 1))
+
+
+        ## tests for cpptraj_helper.py
+        # def test_specified_frames_exeeding_trajectory_frames(self):
+        #     self.assertRaises(IOError, cpp.get_occupancy_of_atoms("../input_files/F2196A.prmtop", "../input_files/F2196A.inpcrd",
+        #                                                           "1", "100", ["47@C", "24@CG2"], 1, 1))
 
 if __name__ == '__main__':
     unittest.main()
