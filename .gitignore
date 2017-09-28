@@ -3,3 +3,4 @@
 *.pyc
 /input_files
 /occupancies
+/test/input_files
