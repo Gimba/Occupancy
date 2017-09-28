@@ -4,6 +4,7 @@ import sys
 import cpptraj_helper as cpp
 import os_helper as os
 from input import Input
+from list_helper import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -43,3 +44,16 @@ if __name__ == "__main__":
     for item in ip.input:
         occupancies.append(cpp.get_occupancy_of_atoms(item[0], item[1], item[2], item[3], initial_contact_atoms,
                                                       ip.mutation, ip.strip_water))
+
+    ##### reformat data #####
+    occupancies_reformatted = reformat_occupancies(occupancies)
+    # format output
+    output = output_2D_list(occupancies_reformatted)
+    output = prepare_output(output, 0)
+    # output = add_residue_types(output, residues)
+
+    # write output
+    input_file_names = ip.get_file_names()
+    write_output(output, ip.mutation + '_occupancies.dat')
+    output_to_pdf(output, ip.mutation + '_occupancies.dat', 0, ip.strip_water, ip.strip_hydro, input_file_names,
+                  ip.mutation)
