@@ -1,4 +1,5 @@
 import os
+import subprocess
 import timeit
 
 
@@ -14,7 +15,6 @@ def run_cpptraj(prmtop, trajin, cpptraj_file):
     minutes = str(int(elapsed / 60))
     seconds = str(int(elapsed % 60))
     print minutes + " minutes " + seconds + " seconds"
-
 
 # generates pdb file in the working directory from parameters. Returns the name of the pdb file.
 def generate_pdb(prmtop, trajin, strip_water, strip_hydrogen):
@@ -162,3 +162,10 @@ def get_atom_occupancy(occupancy_atoms, frames):
             last_atom = atom
 
     return out
+
+
+def get_trajectory_lenght(prmtop, trajin):
+    cpptraj = 'cpptraj -p ' + prmtop + ' -y ' + trajin + ' -tl'
+    proc = subprocess.Popen(cpptraj, stdout=subprocess.PIPE, shell=True)
+    (out, err) = proc.communicate()
+    return out.split()[-1]

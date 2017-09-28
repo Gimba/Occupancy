@@ -1,3 +1,4 @@
+import cpptraj_helper as cpp
 class Input:
     def __init__(self, argv):
         self.argv = argv
@@ -79,6 +80,11 @@ class Input:
                 temp_list.append(item)
         self.input = temp_list
 
+        # check if trajectory contains enough frames
+        for item in self.input:
+            traj_frames = cpp.get_trajectory_lenght(item[0], item[1])
+            if int(item[3]) > int(traj_frames):
+                raise ValueError("Specified last frame %s greater than trajectory length %s." % (item[3], traj_frames))
 
         # other flags
         self.strip_hydro = bool([s for s in self.argv if "-hy" in s])
