@@ -129,7 +129,8 @@ class Tests(unittest.TestCase):
     def test_input_list_trajectory_not_followed_by_int_castable(self):
         self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc last last pdb1.prmtop prod_1.out"])
 
-
+    def test_input_list_end_le_start_frame(self):
+        self.assertRaises(ValueError, Input, ["-r", "23", "-i", "pdb1.prmtop pdb1.nc 2 1 pdb1.prmtop prod_1.inpcrd"])
 
         ## tests for cpptraj_helper.py
         # def test_specified_frames_exeeding_trajectory_frames(self):
