@@ -32,6 +32,7 @@ def create_pdb_cpptraj(prmtop, trajin, strip_water, strip_hydrogen):
     trajin = trajin.split('/')[-1]
     cpptraj_file = prmtop + ".cpptraj"
     pdb = prmtop + "_" + trajin + ".pdb"
+    pdb = pdb.replace("\"", "")
 
     with open(cpptraj_file, 'w') as f:
         if strip_water:

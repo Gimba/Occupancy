@@ -46,6 +46,7 @@ class Tests(unittest.TestCase):
         self.assertTrue(os.path.isfile(ip.input[0][0]))
         os.chdir("..")
         os.system("rm -rf " + ip.folder)
+        os.chdir("..")
 
     def test_input_list_relative_path(self):
         ip = Input(
@@ -60,6 +61,7 @@ class Tests(unittest.TestCase):
         self.assertTrue(os.path.isfile(ip.input[0][0]))
         os.chdir("..")
         os.system("rm -rf " + ip.folder)
+        os.chdir("..")
 
     def test_init_fail(self):
         self.assertRaises(TypeError, Input)
