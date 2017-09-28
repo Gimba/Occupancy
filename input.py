@@ -19,8 +19,8 @@ class Input:
                     raise IOError("Argument following -r not a string. Given: %s" % type(argv[i + 1]))
 
                 try:
-                    self.mutation = int(argv[i + 1])
-                    if self.mutation < 0:
+                    self.mutation = argv[i + 1]
+                    if not self.mutation.isdigit():
                         raise ValueError("Mutation argument has to be a positive number. Given: %s" % argv[i + 1])
                 except ValueError:
                     raise ValueError("Argument following -r not castable to int. Given: %s" % argv[i + 1])
