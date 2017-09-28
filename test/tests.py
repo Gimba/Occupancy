@@ -42,7 +42,9 @@ class Tests(unittest.TestCase):
         myos.create_output_folder(ip.folder)
         myos.copy_to_folder(ip.input[0][0], ip.folder)
         ip.set_file_paths_to_output_folder()
+        myos.change_to_folder(ip.folder)
         self.assertTrue(os.path.isfile(ip.input[0][0]))
+        os.chdir("..")
         os.system("rm -rf " + ip.folder)
 
     def test_input_list_relative_path(self):
@@ -54,7 +56,9 @@ class Tests(unittest.TestCase):
         myos.create_output_folder(ip.folder)
         myos.copy_to_folder(ip.input[0][0], ip.folder)
         ip.set_file_paths_to_output_folder()
+        myos.change_to_folder(ip.folder)
         self.assertTrue(os.path.isfile(ip.input[0][0]))
+        os.chdir("..")
         os.system("rm -rf " + ip.folder)
 
     def test_init_fail(self):
