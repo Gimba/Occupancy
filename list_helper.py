@@ -1,5 +1,8 @@
+from os import remove
+
 import cairo
 from PyPDF2 import PdfFileMerger
+
 
 def output_2D_list(list2d):
     output = ""
@@ -300,6 +303,11 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
     for f in files:
         merger.append(f, 'rb')
     merger.write(file_name + '_occupancies.pdf')
+
+    # remove merged pdf files
+    for item in files:
+        remove(item)
+
 
 
 # add columns of averages to a given list
