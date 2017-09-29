@@ -55,3 +55,14 @@ class Pdb:
         residue_numbers = [int(x) for x in residue_numbers]
         residue_numbers = sorted(residue_numbers)
         return residue_numbers
+
+    # returns a list of atoms types
+    @staticmethod
+    def get_atom_types(atoms):
+        atom_types = []
+        for item in atoms:
+            item = item.split('@')[1]
+            atom_types.append(item)
+            atom_types = list(set(atom_types))
+
+        return atom_types

@@ -1,7 +1,7 @@
 import os
 import subprocess
 import timeit
-
+from collections import Counter
 
 # executes the cpptraj with the given parameters, outputs of will be written as files specified in the cpptraj file
 def run_cpptraj(prmtop, trajin, cpptraj_file):
@@ -16,21 +16,16 @@ def run_cpptraj(prmtop, trajin, cpptraj_file):
     seconds = str(int(elapsed % 60))
     print minutes + " minutes " + seconds + " seconds"
 
-# generates pdb file in the working directory from parameters. Returns the name of the pdb file.
-def generate_pdb(prmtop, trajin, strip_water, strip_hydrogen):
-    cpptraj = create_pdb_cpptraj(prmtop, trajin, strip_water, strip_hydrogen)
-    run_cpptraj(prmtop, trajin, cpptraj[0])
-    pdb_name = cpptraj[1]
-    return pdb_name
-
 
 # creates a cpptraj file to generate a pdb from the given inputs. Returns name of cpptraj file and name of pdb file.
 def create_pdb_cpptraj(prmtop, trajin, strip_water, strip_hydrogen):
     prmtop = prmtop.split('.')[0]
     prmtop = prmtop.split('/')[-1]
-    trajin = trajin.split('.')[0]
     trajin = trajin.split('/')[-1]
-    cpptraj_file = prmtop + ".cpptraj"
+    trajin = trajin.replace(' ', '_')
+    trajin = trajin.replace('.', '_')
+    trajin = trajin.replace('\"', '')
+    cpptraj_file = prmtop + "_" + trajin + "_pdb.cpptraj"
     pdb = prmtop + "_" + trajin + ".pdb"
     pdb = pdb.replace("\"", "")
 
@@ -53,7 +48,7 @@ def generate_pdb(prmtop, trajin, start_frame, end_frame, strip_water, strip_hydr
     return pdb_file_name
 
 
-# get atoms in contact with atoms of the specified residue using the first frame of the trajectory
+# get atoms in contact with atoms of the specified residue
 def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue, strip_water, strip_hydrogen):
     model_contacts = create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, [residue], ['1-500000'],
                                             strip_water,
@@ -65,9 +60,9 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
 
 
 # creates a cpptraj infile that contains commands to get native contacts between the list given by res1 and res2 (
-# e.g. nativecontacts :47@C :1-5000 writecontacts F2196A_contacts.dat distance 3.9). The name fo the file is the
-# given trajin without file extension followed by "_contacts.cpptraj" (e.g. trajin = F2196A.nc ->
-# F2196A_contacts.cpptraj). Water, Chlor and hydrogen stripped
+# e.g. nativecontacts :47@C :1-5000 writecontacts F2196A_contacts.dat distance 3.9). The name of the file is the
+# given topology followed by the trajectory and "_contacts.cpptraj" (e.g. prmtop = F2196A trajin = prod_20.nc ->
+# F2196A_prod_20_nc_contacts.cpptraj).
 def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2, wat, hydro):
     t = trajin.split()
     cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
@@ -91,7 +86,7 @@ def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2,
     return [cpptraj_file, out_file]
 
 
-# transform cpptraj writecontacts data file into list
+# transform cpptraj writecontacts data from file into list
 def get_atom_contacts(data_file, residue):
     contact_atoms = []
     with open(data_file, 'r') as f:
@@ -113,7 +108,7 @@ def get_atom_contacts(data_file, residue):
     return contact_atoms
 
 
-# retrieve atoms from a cpptraj outfile
+# retrieve atoms from a cpptraj data file
 def extract_atoms(atoms):
     out = []
 
@@ -171,3 +166,72 @@ def get_trajectory_lenght(prmtop, trajin):
     proc = subprocess.Popen(cpptraj, stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     return out.split()[-1]
+
+
+# returns the averages for atoms types given in the topology and trajectory files. Since we are normally not
+# interested in the calculation of the occupancy of solvent atoms, these could be excluded by giving appropriate
+# residue masks
+def get_contact_averages_of_types(prmtop, trajin, types, mask1, mask2, wat, hydro):
+    model_contacts_mutated = create_contact_cpptraj_types(trajin, types, mask1, mask2, wat, hydro)
+    run_cpptraj(prmtop, trajin, model_contacts_mutated[0])
+    avrgs = get_occupancy_averages_of_types(model_contacts_mutated[1], types)
+    return avrgs
+
+
+# create cpptraj infile to calculate occupancies for given atom types
+def create_contact_cpptraj_types(trajin, types, mask1, mask2, wat, hydro):
+    t = trajin.split()
+    frames = ""
+    if len(t) > 1:
+        frames = "_" + t[1] + "_" + t[2]
+        frames = frames.strip("\"")
+    cpptraj_file = t[0].split('.')[0].strip("\"") + "_" + t[0].split('.')[1] + frames + "_averages_contacts.cpptraj"
+    out_file = cpptraj_file.replace('cpptraj', 'dat')
+
+    with open(cpptraj_file, 'w') as f:
+        if wat:
+            f.write('strip :WAT\n')
+        if hydro:
+            f.write('strip @H*\nstrip @?H*\nstrip @Cl-\n')
+
+        for item in types:
+            f.write('nativecontacts (:' + mask1 + ')&(@' + item + ') :' + mask2 + ' writecontacts ' + out_file +
+                    ' distance 3.9\n')
+        f.write('go')
+
+    return [cpptraj_file, out_file]
+
+
+# get the average of contacts of types from a given cpptraj data file
+def get_occupancy_averages_of_types(data_file, types):
+    data = read_cpptraj_data_contacts_distance(data_file)
+
+    type_occupancy_average = []
+    for item in types:
+        residue_types = []
+        for line in data:
+            temp = line[0][0].split('@')[1]
+            if item == temp:
+                residue_types.append(line[0][0])
+        if len(residue_types) != 0:
+            type_occupancies = Counter(residue_types).values()
+            average = round(sum(type_occupancies) / float(len(type_occupancies)), 2)
+            type_occupancy_average.append([item, average])
+
+    return type_occupancy_average
+
+
+# reads in the specfied file and returns a list that contains elements consisting of the two contacting atoms and
+# their distance to each other (e.g. [[[246@N, 23@C],2.34], [[246@H, 23@CB], 3.12],...]
+def read_cpptraj_data_contacts_distance(file_name):
+    out = []
+    with open(file_name, 'r') as f:
+        for line in f:
+            if line[0] is not '#':
+                line = line.split()
+                atom = line[1].replace(':', '')
+                atom = atom.split('_')
+                dist = float(line[4])
+                if atom[0] != atom[1]:
+                    out.append([atom, dist])
+    return out

@@ -5,6 +5,7 @@ import cpptraj_helper as cpp
 import os_helper as os
 from input import Input
 from list_helper import *
+from pdb import Pdb
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -41,6 +42,26 @@ if __name__ == "__main__":
     for item in ip.input:
         occupancies.append(cpp.get_occupancy_of_atoms(item[0], item[1], item[2], item[3], initial_contact_atoms,
                                                       ip.mutation, ip.strip_water))
+
+    ##### calculate average occupancies #####
+    if ip.calc_averages:
+
+        # generate pdb to get non solvent residues
+        pdb_file_name = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], "1", "1", 1, 1)
+        pdb = Pdb(pdb_file_name)
+
+        # get non solvent residue numbers to create mask to exclude solvent in calculation of averages
+        non_solvent_residues = pdb.get_non_solvent_residue_numbers()
+        mask1 = str(non_solvent_residues[0]) + "-" + str(non_solvent_residues[-1])
+        mask2 = "1-50000"
+
+        # get types of contacting atoms
+        contacting_atoms_types = pdb.get_atom_types(initial_contact_atoms)
+
+        averages = []
+        for item in ip.input:
+            averages.append(cpp.get_contact_averages_of_types(item[0], item[1], contacting_atoms_types, mask1, mask2,
+                                                              ip.strip_water, ip.strip_hydro))
 
     ##### reformat data #####
     occupancies_reformatted = reformat_occupancies(occupancies)
