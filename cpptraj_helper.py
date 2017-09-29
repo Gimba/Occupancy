@@ -130,7 +130,7 @@ def extract_atoms(atoms):
 def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_water, strip_hydrogen):
     cpptraj_file = create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, atoms, ['1-500000'], strip_water,
                                           strip_hydrogen)
-    trajin = "\"" + trajin + " " + start_frame + " " + end_frame + "\""
+    trajin = trajin_start_end(trajin, start_frame, end_frame)
     run_cpptraj(prmtop, trajin, cpptraj_file[0])
     contacts_init = get_atom_contacts(cpptraj_file[1], '')
 
@@ -161,7 +161,7 @@ def get_atom_occupancy(occupancy_atoms, frames):
     return out
 
 
-def get_trajectory_lenght(prmtop, trajin):
+def get_trajectory_length(prmtop, trajin):
     cpptraj = 'cpptraj -p ' + prmtop + ' -y ' + trajin + ' -tl'
     proc = subprocess.Popen(cpptraj, stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
@@ -171,21 +171,20 @@ def get_trajectory_lenght(prmtop, trajin):
 # returns the averages for atoms types given in the topology and trajectory files. Since we are normally not
 # interested in the calculation of the occupancy of solvent atoms, these could be excluded by giving appropriate
 # residue masks
-def get_contact_averages_of_types(prmtop, trajin, types, mask1, mask2, wat, hydro):
-    model_contacts_mutated = create_contact_cpptraj_types(trajin, types, mask1, mask2, wat, hydro)
+def get_contact_averages_of_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2, wat, hydro):
+    model_contacts_mutated = create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2,
+                                                          wat, hydro)
+    trajin = trajin_start_end(trajin, start_frame, end_frame)
     run_cpptraj(prmtop, trajin, model_contacts_mutated[0])
     avrgs = get_occupancy_averages_of_types(model_contacts_mutated[1], types)
     return avrgs
 
 
 # create cpptraj infile to calculate occupancies for given atom types
-def create_contact_cpptraj_types(trajin, types, mask1, mask2, wat, hydro):
+def create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2, wat, hydro):
     t = trajin.split()
-    frames = ""
-    if len(t) > 1:
-        frames = "_" + t[1] + "_" + t[2]
-        frames = frames.strip("\"")
-    cpptraj_file = t[0].split('.')[0].strip("\"") + "_" + t[0].split('.')[1] + frames + "_averages_contacts.cpptraj"
+    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
+        "\"") + "_" + start_frame + "_" + end_frame + "_averages_contacts.cpptraj"
     out_file = cpptraj_file.replace('cpptraj', 'dat')
 
     with open(cpptraj_file, 'w') as f:
@@ -235,3 +234,9 @@ def read_cpptraj_data_contacts_distance(file_name):
                 if atom[0] != atom[1]:
                     out.append([atom, dist])
     return out
+
+
+# add start and end frames to trajectory
+def trajin_start_end(trajin, start_frame, end_frame):
+    trajin = "\"" + trajin + " " + start_frame + " " + end_frame + "\""
+    return trajin

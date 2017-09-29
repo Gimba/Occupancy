@@ -60,18 +60,25 @@ if __name__ == "__main__":
 
         averages = []
         for item in ip.input:
-            averages.append(cpp.get_contact_averages_of_types(item[0], item[1], contacting_atoms_types, mask1, mask2,
-                                                              ip.strip_water, ip.strip_hydro))
+            averages.append(cpp.get_contact_averages_of_types(item[0], item[1], item[2], item[3], contacting_atoms_types
+                                                              , mask1, mask2, ip.strip_water, ip.strip_hydro))
 
     ##### reformat data #####
-    occupancies_reformatted = reformat_occupancies(occupancies)
-    # format output
-    output = output_2D_list(occupancies_reformatted)
-    output = prepare_output(output, 0)
-    # output = add_residue_types(output, residues)
+    occupancies = reformat_occupancies_list(occupancies)
 
-    ##### output data #####
+    if ip.calc_averages:
+        for item in averages:
+            occupancies = add_averages_column(occupancies, item)
+
+    # add headers
+    output = add_headers(occupancies, ip.calc_averages)
+
+    # format output
+    output = output_2D_list(output)
+    output = prepare_output(output, ip.calc_averages)
+
+    ##### write data #####
     input_file_names = ip.get_file_names()
     write_output(output, ip.mutation + '_occupancies.dat')
-    output_to_pdf(output, ip.mutation + '_occupancies.dat', 0, ip.strip_water, ip.strip_hydro, input_file_names,
-                  ip.mutation)
+    output_to_pdf(output, ip.mutation + '_occupancies.dat', ip.calc_averages, ip.strip_water, ip.strip_hydro,
+                  input_file_names, ip.mutation)

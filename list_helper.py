@@ -53,7 +53,7 @@ def c_del(lst, column):
 
 
 # create list with residue@atom_type and occupancies
-def reformat_occupancies(occupancies):
+def reformat_occupancies_list(occupancies):
     occ_list = []
     for item in occupancies:
         if not occ_list:
@@ -65,11 +65,7 @@ def reformat_occupancies(occupancies):
     occ_list = c_bind(res_numb, occ_list)
     occ_list = sorted(occ_list)
 
-    top_header = ["", "", "Occupancies", ""]
-    header = ["Atom", "#0", "#1", "#2"]
 
-    occ_list = [header] + occ_list
-    occ_list = [top_header] + occ_list
     return occ_list
 
 
@@ -304,3 +300,29 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
     for f in files:
         merger.append(f, 'rb')
     merger.write(file_name + '_occupancies.pdf')
+
+
+# add columns of averages to a given list
+def add_averages_column(lst, avrgs):
+    outlist = []
+    for item in lst:
+        if '@' in item[0]:
+            for avrg in avrgs:
+                if item[0].split('@')[1] == avrg[0]:
+                    item.append(avrg[1])
+                    outlist.append(item)
+    return outlist
+
+
+# adds header to output list, TODO headers for arbitrary many inputs
+def add_headers(lst, avrgs):
+    top_header = ["", "", "Occupancies", ""]
+    if avrgs:
+        top_header.extend(["", "Averages", "", ""])
+    header = ["Atom", "#0", "#1", "#2"]
+    if avrgs:
+        header.extend(["#0", "#1", "#2"])
+
+    lst = [header] + lst
+    lst = [top_header] + lst
+    return lst

@@ -82,7 +82,7 @@ class Input:
 
         # check if trajectory contains enough frames
         for item in self.input:
-            traj_frames = cpp.get_trajectory_lenght(item[0], item[1])
+            traj_frames = cpp.get_trajectory_length(item[0], item[1])
             if int(item[3]) > int(traj_frames):
                 raise ValueError("Specified last frame %s greater than trajectory length %s." % (item[3], traj_frames))
 
