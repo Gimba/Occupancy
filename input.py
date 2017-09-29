@@ -8,8 +8,8 @@ class Input:
         if len(argv) < 4:
             raise TypeError("At least four arguments needed. Given: %d" % len(argv))
 
-        if len(argv) > 7:
-            raise TypeError("A maximum of 7 arguments is allowed. Given: %d" % len(argv))
+        if len(argv) > 9:
+            raise TypeError("A maximum of 9 arguments is allowed. Given: %d" % len(argv))
 
         # get specified mutation
         self.mutation = -1
@@ -93,6 +93,10 @@ class Input:
 
         # output folder
         self.folder = "occupancies/"
+
+        for i in range(0, len(argv)):
+            if argv[i] == "-f":
+                self.folder = argv[i + 1]
 
     # change path of files to output folder
     def set_file_paths_to_output_folder(self):

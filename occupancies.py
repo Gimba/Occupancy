@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--residue', help='investigated residue')
     parser.add_argument('-i', '--input', nargs='?',
                         help='list of inputs (e.g. model1.prmtop model1.incprd, mutation.prmtop, prod_1.nc 1 20, ...')
+    parser.add_argument('-f', '--output_folder', nargs='?', help='set output folder (default: "occupancies"')
     parser.add_argument('-a', '--avrgs', help='calculate averages', action='store_true')
     parser.add_argument('-w', '--wat', help='strip water', action='store_true')
     parser.add_argument('-hy', '--hydro', help='strip hydrogen', action='store_true')

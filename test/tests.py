@@ -64,6 +64,18 @@ class Tests(unittest.TestCase):
         os.chdir("..")
         os.system("rm -rf " + ip.folder)
 
+    def test_input_list_output_folder_specified(self):
+        ip = Input(
+            ["-a", "-hy", "-i",
+             "../input_files/F2196A.prmtop ../input_files/F2196A.inpcrd 1 1",
+             "-r",
+             "23",
+             "-f",
+             "output"])
+        myos.create_output_folder(ip.folder)
+        self.assertTrue(os.path.isdir(ip.folder))
+        os.removedirs(ip.folder)
+
     def test_init_fail(self):
         self.assertRaises(TypeError, Input)
 
@@ -80,7 +92,7 @@ class Tests(unittest.TestCase):
         self.assertRaises(TypeError, Input, ["1", "2", "3"])
 
     def test_init_to_many_arguments(self):
-        self.assertRaises(TypeError, Input, ["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+        self.assertRaises(TypeError, Input, ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
 
     # tests for mutation argument
     def test_mutation_flag_not_present(self):
