@@ -95,7 +95,7 @@ def prepare_output(output, avrgs):
 
     for line in output:
         l = line
-        if line[0] == ':':
+        if line[0].isdigit():
             line = line.split(',')
             init_tot += float(line[1])
             muta_tot += float(line[2])

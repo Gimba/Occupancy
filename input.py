@@ -8,8 +8,8 @@ class Input:
         if len(argv) < 4:
             raise TypeError("At least four arguments needed. Given: %d" % len(argv))
 
-        if len(argv) > 9:
-            raise TypeError("A maximum of 9 arguments is allowed. Given: %d" % len(argv))
+        if len(argv) > 13:
+            raise TypeError("A maximum of 13 arguments is allowed. Given: %d" % len(argv))
 
         # get specified mutation
         self.mutation = -1
@@ -97,6 +97,15 @@ class Input:
         for i in range(0, len(argv)):
             if argv[i] == "-f":
                 self.folder = argv[i + 1]
+
+        # masks
+        self.mask1 = 0
+        self.mask2 = "1-50000"
+        for i in range(0, len(argv)):
+            if argv[i] == "-m1":
+                self.mask1 = argv[i + 1]
+            if argv[i] == "-m2":
+                self.mask2 = argv[i + 1]
 
     # change path of files to output folder
     def set_file_paths_to_output_folder(self):

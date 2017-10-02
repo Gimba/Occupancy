@@ -3,6 +3,9 @@ import subprocess
 import timeit
 from collections import Counter
 
+from list_helper import *
+
+
 # executes the cpptraj with the given parameters, outputs of will be written as files specified in the cpptraj file
 def run_cpptraj(prmtop, trajin, cpptraj_file):
     cpptraj = 'cpptraj -p ' + prmtop + ' -y ' + trajin + ' -i ' + cpptraj_file + ' > ' + cpptraj_file.replace('.',
@@ -36,6 +39,8 @@ def create_pdb_cpptraj(prmtop, trajin, strip_water, strip_hydrogen):
             f.write('strip @H*\nstrip @?H*\nstrip @Cl-\n')
         f.write('trajout ' + pdb)
         f.write('\ngo')
+        # sometimes data gets written only after clear all command
+        f.write('\nclear all')
     return [cpptraj_file, pdb]
 
 
@@ -54,7 +59,7 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
                                             strip_water,
                                             strip_hydrogen)
     run_cpptraj(prmtop, trajin, model_contacts[0])
-    contact_atoms_init = get_atom_contacts(model_contacts[1], residue)
+    contact_atoms_init = get_atom_contacts(model_contacts[1], 1)
     atoms = extract_atoms(contact_atoms_init)
     return atoms
 
@@ -82,39 +87,53 @@ def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2,
                 f.write('nativecontacts :' + item1 + ' :' + item2 + ' writecontacts ' +
                         out_file + ' distance 3.9\n')
         f.write('go')
+        # sometimes data gets written only after clear all command
+        f.write('\nclear all')
 
     return [cpptraj_file, out_file]
 
 
-# transform cpptraj writecontacts data from file into list
-def get_atom_contacts(data_file, residue):
-    contact_atoms = []
-    with open(data_file, 'r') as f:
-        for line in f:
-            if line[0] is not '#':
-                # get lines which do not contain the mutation residue as contact itself (only consider extra mutation
-                #  residue contacts)
-                if "_:" + residue + "@" not in line:
-                    # extract residue number from line
-                    line = line.split(' ')
-                    line = filter(None, line)
-                    # line = line[1].split("_")[1]
-                    # line = line.split('@')[0]
-                    # line = line.replace(':', '')
-                    atom = line[1]
-                    contacts = line[2]
-                    contact_atoms.append([atom, contacts])
+# transform cpptraj writecontacts data from file into list, index is used to choose over which atoms is summed
+def get_atom_contacts(data_file, index):
+    data = read_cpptraj_data_contacts_frames(data_file)
 
-    return contact_atoms
+    type_occupancies = []
+    for line in data:
+        if line[0][0] is not line[0][1]:
+            atom = line[0][index]
+            # add as many times as this type occurs
+            for i in range(0, int(line[1])):
+                type_occupancies.append(atom)
+
+    type_occupancies = Counter(type_occupancies)
+    type_occupancies = type_occupancies.items()
+    return type_occupancies
 
 
-# retrieve atoms from a cpptraj data file
+    # contact_atoms = []
+    # with open(data_file, 'r') as f:
+    #     for line in f:
+    #         if line[0] is not '#':
+    #             # get lines which do not contain the mutation residue as contact itself (only consider extra mutation
+    #             #  residue contacts, important for method get_residue_contacting_atoms)
+    #             if "_:" + residue + "@" not in line:
+    #                 # extract residue number from line
+    #                 line = line.split(' ')
+    #                 line = filter(None, line)
+    #                 atom = line[1]
+    #                 contacts = line[2]
+    #                 contact_atoms.append([atom, contacts])
+    #
+    # return contact_atoms
+
+
+# retrieve atoms from given list
 def extract_atoms(atoms):
     out = []
 
     for item in atoms:
         # :23@N_:22@O -> :22@O
-        item = item[0].split('_')[1]
+        item = item[0]
         # :22@O -> 22@O
         item = item.replace(':', '')
         if item.split('@')[0] != '23':
@@ -132,12 +151,11 @@ def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_
                                           strip_hydrogen)
     trajin = trajin_start_end(trajin, start_frame, end_frame)
     run_cpptraj(prmtop, trajin, cpptraj_file[0])
-    contacts_init = get_atom_contacts(cpptraj_file[1], '')
 
     # calculate number of frames if range is specified in trajectory
     frames = int(end_frame) - int(start_frame) + 1
 
-    occupancy = get_atom_occupancy(contacts_init, frames)
+    occupancy = get_atom_contacts(cpptraj_file[1], 0)
 
     return occupancy
 
@@ -176,7 +194,7 @@ def get_contact_averages_of_types(prmtop, trajin, start_frame, end_frame, types,
                                                           wat, hydro)
     trajin = trajin_start_end(trajin, start_frame, end_frame)
     run_cpptraj(prmtop, trajin, model_contacts_mutated[0])
-    avrgs = get_occupancy_averages_of_types(model_contacts_mutated[1], types)
+    avrgs = get_type_contacts(model_contacts_mutated[1], types)
     return avrgs
 
 
@@ -197,27 +215,43 @@ def create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, 
             f.write('nativecontacts (:' + mask1 + ')&(@' + item + ') :' + mask2 + ' writecontacts ' + out_file +
                     ' distance 3.9\n')
         f.write('go')
+        # sometimes data gets written only after clear all command
+        f.write('\nclear all')
 
     return [cpptraj_file, out_file]
 
 
 # get the average of contacts of types from a given cpptraj data file
-def get_occupancy_averages_of_types(data_file, types):
-    data = read_cpptraj_data_contacts_distance(data_file)
+def get_type_contacts(data_file, types):
+    data = read_cpptraj_data_contacts_frames(data_file)
 
-    type_occupancy_average = []
-    for item in types:
-        residue_types = []
-        for line in data:
-            temp = line[0][0].split('@')[1]
-            if item == temp:
-                residue_types.append(line[0][0])
-        if len(residue_types) != 0:
-            type_occupancies = Counter(residue_types).values()
-            average = round(sum(type_occupancies) / float(len(type_occupancies)), 2)
-            type_occupancy_average.append([item, average])
+    atoms = []
+    for line in data:
+        if line[0][0] != line[0][1]:
+            atom = line[0][0]
+            for i in range(0, int(line[1])):
+                atoms.append(atom)
 
-    return type_occupancy_average
+    atoms = Counter(atoms).items()
+
+    atoms = [list(item) for item in atoms]
+
+    atoms = [[item[0].split('@')[1], item[1]] for item in atoms]
+
+    types = list(set(c_get(atoms, 0)))
+
+    type_occupancies = []
+
+    for t in types:
+        total = 0
+        counter = 0
+        for a in atoms:
+            if a[0] == t:
+                counter += 1
+                total += a[1]
+        type_occupancies.append([t, round(float(total) / float(counter), 2)])
+
+    return type_occupancies
 
 
 # reads in the specfied file and returns a list that contains elements consisting of the two contacting atoms and
@@ -233,6 +267,21 @@ def read_cpptraj_data_contacts_distance(file_name):
                 dist = float(line[4])
                 if atom[0] != atom[1]:
                     out.append([atom, dist])
+    return out
+
+
+# reads in the specfied file and returns a list that contains elements consisting of the two contacting atoms and
+# frame count (e.g. [[[246@N, 23@C],2], [[246@H, 23@CB], 3],...]
+def read_cpptraj_data_contacts_frames(file_name):
+    out = []
+    with open(file_name, 'r') as f:
+        for line in f:
+            line = line.split()
+            if line[0] is not '#':
+                atom = line[1].replace(':', '')
+                atom = atom.split('_')
+                frames = float(line[3])
+                out.append([atom, frames])
     return out
 
 
