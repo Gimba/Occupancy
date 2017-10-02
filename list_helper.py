@@ -171,7 +171,7 @@ def prepare_output(output, avrgs):
     # total values at the end of document
     out += "total," + str(init_tot) + "," + str(muta_tot) + "," + str(sim_tot)
     if avrgs:
-        out += "," + str(round(avg_init_tot, 2)) + "," + str(round(avg_sim_tot, 2)) + "," + str(round(avg_muta_tot, 2))
+        out += "," + str(round(avg_init_tot, 2)) + "," + str(round(avg_muta_tot, 2)) + "," + str(round(avg_sim_tot, 2))
     out += "\n"
 
     # total percentages
