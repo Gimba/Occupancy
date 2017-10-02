@@ -91,9 +91,6 @@ class Tests(unittest.TestCase):
     def test_init_to_few_arguments(self):
         self.assertRaises(TypeError, Input, ["1", "2", "3"])
 
-    def test_init_to_many_arguments(self):
-        self.assertRaises(TypeError, Input, ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
-
     # tests for mutation argument
     def test_mutation_flag_not_present(self):
         self.assertRaises(IOError, Input, ["", "23", "-i", "../input_files/model1.prmtop ../input_files/model1.inpcrd"])
