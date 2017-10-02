@@ -100,7 +100,7 @@ class Input:
 
         # masks
         self.mask1 = 0
-        self.mask2 = "1-50000"
+        self.mask2 = 0
         for i in range(0, len(argv)):
             if argv[i] == "-m1":
                 self.mask1 = argv[i + 1]

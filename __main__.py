@@ -53,7 +53,7 @@ def main():
     if ip.calc_averages:
 
         # generate pdb
-        pdb_file_name = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], "1", "1", 1, 1)
+        pdb_file_name = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], "1", "1", 0, 1)
         pdb = Pdb(pdb_file_name)
 
         # get non solvent residue numbers from pdb to create mask to exclude solvent in calculation of averages
@@ -62,6 +62,8 @@ def main():
             non_solvent_residues = pdb.get_non_solvent_residue_numbers()
             ip.mask1 = str(non_solvent_residues[0]) + "-" + str(non_solvent_residues[-1])
 
+        if not ip.mask2:
+            ip.mask2 = "1-" + str(max(pdb.get_residue_numbers()))
         # get types of contacting atoms
         contacting_atoms_types = pdb.get_atom_types(initial_contact_atoms)
 
