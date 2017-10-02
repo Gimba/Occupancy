@@ -61,6 +61,15 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
     run_cpptraj(prmtop, trajin, model_contacts[0])
     contact_atoms_init = get_atom_contacts(model_contacts[1], 1)
     atoms = extract_atoms(contact_atoms_init)
+
+    t = trajin.split()
+    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
+        "\"") + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
+    new_cpptraj = cpptraj_file.split('.')[0] + "_init." + cpptraj_file.split('.')[1]
+    os.rename(cpptraj_file, new_cpptraj)
+    out_file = cpptraj_file.replace('cpptraj', 'dat')
+    new_out = new_cpptraj.replace('cpptraj', 'dat')
+    os.rename(out_file, new_out)
     return atoms
 
 
