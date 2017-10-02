@@ -242,7 +242,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
         x += 120
 
         # coloring
-        if len(line[0]) > 0 and line[0][0] == ':' or line[0] == 'SUM':
+        if len(line[0]) > 0 and line[0][0].isdigit() or line[0] == 'SUM':
             ctx.move_to(x, y)
             ctx.show_text(line[1])
             x += 75
