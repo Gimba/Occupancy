@@ -55,22 +55,55 @@ def c_del(lst, column):
     return outlist
 
 
+# merges to list using the given key_columns
+def c_merge_list(lst1, lst2, keys_column_index_1, keys_column_index_2, merge_column):
+    keys_column_1 = c_get(lst1, keys_column_index_1)
+    keys_column_2 = c_get(lst2, keys_column_index_2)
+
+    keys = keys_column_1 + keys_column_2
+    list(set(keys))
+
+    out_list = []
+    for item1 in lst1:
+        for item2 in lst2:
+            if item1[keys_column_index_1] == item2[keys_column_index_2]:
+                item1.append(item2[merge_column])
+                out_list.append(item1)
+
+    return out_list
+
+
 # create list with residue@atom_type and occupancies
 def reformat_occupancies_list(occupancies):
     occ_list = []
-    for item in occupancies:
-        if not occ_list:
-            occ_list = c_get(item, 0)
-        occ_list = c_bind(occ_list, c_get(item, 1))
+    occupancies = tuples_list_to_list_list(occupancies)
+    for i in range(0, len(occupancies)):
+        if not i:
+            occ_list = occupancies[i]
+        else:
+            occ_list = c_merge_list(occ_list, occupancies[i], 0, 0, -1)
 
     res_numb = c_get(occ_list, 0)
     occ_list = c_del(occ_list, 0)
     occ_list = c_bind(res_numb, occ_list)
     occ_list = sorted(occ_list)
 
-
     return occ_list
 
+
+# convert tuple items of a list or a list of lists to a list
+def tuples_list_to_list_list(tuples_list):
+    out_list_top = []
+    for item in tuples_list:
+        if isinstance(item, tuple):
+            out_list_top.append(list(item))
+        else:
+            out_list_sub = []
+            for item1 in item:
+                if isinstance(item1, tuple):
+                    out_list_sub.append(list(item1))
+            out_list_top.append(out_list_sub)
+    return out_list_top
 
 # calculate percentages and total values of occupancies
 def prepare_output(output, avrgs):
@@ -193,6 +226,37 @@ def prepare_output(output, avrgs):
 def write_output(output, file_name):
     with open(file_name, 'w') as f:
         f.write(output)
+
+
+def write_percentages(output, file_name):
+    residue = 0
+    output = output.split('\n')
+    temp = []
+    for item in output:
+        line = []
+        item = item.split(',')
+        if len(item[0]) > 0:
+            if item[0][0].isdigit():
+                residue = item[0].split('@')[0]
+        if len(item) > 2 and '%' in item[2]:
+            line.append(residue)
+            line.extend(item)
+            temp.append(filter(None, line))
+    out = []
+    print temp
+    for item in temp:
+        muta = item[1].strip('%')
+        muta_avg = item[3].strip('%')
+        quot_muta = float(muta) - float(muta_avg)
+        sim = item[2].strip('%')
+        sim_avg = item[4].strip('%')
+        quot_sim = float(sim) - float(sim_avg)
+        line = item[0] + " " + str(quot_muta) + " " + str(quot_sim)
+        out.append(line)
+    print out
+    with open(file_name, 'w') as f:
+        for item in out:
+            f.write(item + "\n")
 
 
 # write occupancy data to pdf file

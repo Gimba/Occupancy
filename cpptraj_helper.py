@@ -60,7 +60,7 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
                                             strip_hydrogen)
     run_cpptraj(prmtop, trajin, model_contacts[0])
     contact_atoms_init = get_atom_contacts(model_contacts[1], 1)
-    atoms = extract_atoms(contact_atoms_init)
+    atoms = extract_atoms(contact_atoms_init, residue)
 
     t = trajin.split()
     cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
@@ -137,7 +137,7 @@ def get_atom_contacts(data_file, index):
 
 
 # retrieve atoms from given list
-def extract_atoms(atoms):
+def extract_atoms(atoms, residue):
     out = []
 
     for item in atoms:
@@ -145,7 +145,7 @@ def extract_atoms(atoms):
         item = item[0]
         # :22@O -> 22@O
         item = item.replace(':', '')
-        if item.split('@')[0] != '23':
+        if item.split('@')[0] != residue:
             out.append(item)
 
     # consolidate same entries
