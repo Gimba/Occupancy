@@ -4,3 +4,7 @@
 /input_files
 /occupancies
 /test/input_files
+/input_files2
+*.zip
+/out*
+
