@@ -91,8 +91,8 @@ def main():
     write_output(output, ip.mutation + '_occupancies.dat')
     output_to_pdf(output, ip.mutation + '_occupancies.dat', ip.calc_averages, ip.strip_water, ip.strip_hydro,
                   input_file_names, ip.mutation)
-    write_percentages(output, "percentages.dat")
-
+    if ip.calc_averages:
+        write_percentages_quotients(output, ip.mutation + "_percentage_quotients.dat")
 
 
 if __name__ == "__main__":
