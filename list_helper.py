@@ -56,19 +56,19 @@ def c_del(lst, column):
 
 
 # merges to list using the given key_columns
-def c_merge_list(lst1, lst2, keys_column_index_1, keys_column_index_2, merge_column):
-    keys_column_1 = c_get(lst1, keys_column_index_1)
-    keys_column_2 = c_get(lst2, keys_column_index_2)
+def c_merge_list(lst):
+    # Convert outer sublists to dictionaries
+    dicts = list(map(dict, lst))
 
-    keys = keys_column_1 + keys_column_2
-    list(set(keys))
+    # Get all the keys
+    keys = set()
+    for d in dicts:
+        keys.update(d.keys())
 
+    # Get data for each key from each dict, using 0 if a key is missing
     out_list = []
-    for item1 in lst1:
-        for item2 in lst2:
-            if item1[keys_column_index_1] == item2[keys_column_index_2]:
-                item1.append(item2[merge_column])
-                out_list.append(item1)
+    for k in sorted(keys):
+        out_list.append([k] + [d.get(k, 0) for d in dicts])
 
     return out_list
 
@@ -77,12 +77,13 @@ def c_merge_list(lst1, lst2, keys_column_index_1, keys_column_index_2, merge_col
 def reformat_occupancies_list(occupancies):
     occ_list = []
     occupancies = tuples_list_to_list_list(occupancies)
-    for i in range(0, len(occupancies)):
-        if not i:
-            occ_list = occupancies[i]
-        else:
-            occ_list = c_merge_list(occ_list, occupancies[i], 0, 0, -1)
+    # for i in range(0, len(occupancies)):
+    #     if not i:
+    #         occ_list = occupancies[i]
+    #     else:
+    #         occ_list = c_merge_list(occ_list, occupancies[i], 0, 0, -1)
 
+    occ_list = c_merge_list(occupancies)
     res_numb = c_get(occ_list, 0)
     occ_list = c_del(occ_list, 0)
     occ_list = c_bind(res_numb, occ_list)
