@@ -229,7 +229,7 @@ def write_output(output, file_name):
         f.write(output)
 
 
-def write_percentages(output, file_name):
+def write_percentages_quotients(output, file_name):
     residue = 0
     output = output.split('\n')
     temp = []
@@ -239,6 +239,8 @@ def write_percentages(output, file_name):
         if len(item[0]) > 0:
             if item[0][0].isdigit():
                 residue = item[0].split('@')[0]
+            elif item[0] == 'total':
+                residue = 'total'
         if len(item) > 2 and '%' in item[2]:
             line.append(residue)
             line.extend(item)
