@@ -1,6 +1,7 @@
 import os as os
 import unittest
 
+import list_helper as lst
 import os_helper as myos
 from input import Input
 
@@ -157,6 +158,19 @@ class Tests(unittest.TestCase):
                            "/l_mnt/scratch/u/rm001/Occupancy/input_files/F2196A.prmtop /l_mnt/scratch/u/rm001/Occupancy/input_files/F2196A.inpcrd 1 100",
                            "-r",
                            "23"])
+
+    ## tests list_helper
+    def test_merge_two_lists(self):
+        lst1 = [[['a', 100], ['b', 200], ['d', 325]], [['a', 50], ['b', 250], ['c', 75]]]
+        output = lst.c_merge_list(lst1)
+        mock = [['a', 100, 50], ['b', 200, 250], ['c', 0, 75], ['d', 325, 0]]
+        self.assertEqual(output, mock)
+
+    def test_merge_two_lists(self):
+        lst1 = [[['a', 100], ['b', 200], ['d', 325]], [['a', 50], ['b', 250], ['c', 75]], [['a', 22], ['b', 10]]]
+        output = lst.c_merge_list(lst1)
+        mock = [['a', 100, 50, 22], ['b', 200, 250, 10], ['c', 0, 75, 0], ['d', 325, 0, 0]]
+        self.assertEqual(output, mock)
 
 if __name__ == '__main__':
     unittest.main()
