@@ -59,12 +59,10 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
                                             strip_water,
                                             strip_hydrogen)
     run_cpptraj(prmtop, trajin, model_contacts[0])
-    contact_atoms_init = get_atom_contacts(model_contacts[1], 1)
+    contact_atoms_init = get_atom_contacts(model_contacts[1], 1, 1)
     atoms = extract_atoms(contact_atoms_init, residue)
 
-    t = trajin.split()
-    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
-        "\"") + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
+    cpptraj_file = generate_cpptraj_name(prmtop, trajin, start_frame, end_frame, "substitution")
     new_cpptraj = cpptraj_file.split('.')[0] + "_init." + cpptraj_file.split('.')[1]
     os.rename(cpptraj_file, new_cpptraj)
     out_file = cpptraj_file.replace('cpptraj', 'dat')
@@ -78,9 +76,8 @@ def get_residue_contacting_atoms(prmtop, trajin, start_frame, end_frame, residue
 # given topology followed by the trajectory and "_contacts.cpptraj" (e.g. prmtop = F2196A trajin = prod_20.nc ->
 # F2196A_prod_20_nc_contacts.cpptraj).
 def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2, wat, hydro):
-    t = trajin.split()
-    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
-        "\"") + "_" + start_frame + "_" + end_frame + "_contacts.cpptraj"
+    t = trajin.split()[-1]
+    cpptraj_file = generate_cpptraj_name(prmtop, trajin, start_frame, end_frame, "substitution")
 
     out_file = cpptraj_file.replace('cpptraj', 'dat')
 
@@ -102,8 +99,8 @@ def create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, mask1, mask2,
     return [cpptraj_file, out_file]
 
 
-# transform cpptraj writecontacts data from file into list, index is used to choose over which atoms is summed
-def get_atom_contacts(data_file, index):
+# transform cpptraj writecontacts data from file into list, index is used to choose over which atom is summed
+def get_atom_contacts(data_file, index, frames):
     data = read_cpptraj_data_contacts_frames(data_file)
 
     type_occupancies = []
@@ -116,24 +113,12 @@ def get_atom_contacts(data_file, index):
 
     type_occupancies = Counter(type_occupancies)
     type_occupancies = type_occupancies.items()
-    return type_occupancies
-
-
-    # contact_atoms = []
-    # with open(data_file, 'r') as f:
-    #     for line in f:
-    #         if line[0] is not '#':
-    #             # get lines which do not contain the mutation residue as contact itself (only consider extra mutation
-    #             #  residue contacts, important for method get_residue_contacting_atoms)
-    #             if "_:" + residue + "@" not in line:
-    #                 # extract residue number from line
-    #                 line = line.split(' ')
-    #                 line = filter(None, line)
-    #                 atom = line[1]
-    #                 contacts = line[2]
-    #                 contact_atoms.append([atom, contacts])
-    #
-    # return contact_atoms
+    out = []
+    for item in type_occupancies:
+        item = list(item)
+        item[1] = round(item[1] / frames, 2)
+        out.append(item)
+    return out
 
 
 # retrieve atoms from given list
@@ -164,7 +149,7 @@ def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_
     # calculate number of frames if range is specified in trajectory
     frames = int(end_frame) - int(start_frame) + 1
 
-    occupancy = get_atom_contacts(cpptraj_file[1], 0)
+    occupancy = get_atom_contacts(cpptraj_file[1], 0, frames)
 
     return occupancy
 
@@ -203,15 +188,15 @@ def get_contact_averages_of_types(prmtop, trajin, start_frame, end_frame, types,
                                                           wat, hydro)
     trajin = trajin_start_end(trajin, start_frame, end_frame)
     run_cpptraj(prmtop, trajin, model_contacts_mutated[0])
-    avrgs = get_type_contacts(model_contacts_mutated[1], types)
+
+    frames = int(end_frame) - int(start_frame) + 1
+    avrgs = get_type_contacts(model_contacts_mutated[1], frames)
     return avrgs
 
 
 # create cpptraj infile to calculate occupancies for given atom types
 def create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2, wat, hydro):
-    t = trajin.split()
-    cpptraj_file = prmtop.split(".")[0] + "_" + t[0].replace(".", "_").strip(
-        "\"") + "_" + start_frame + "_" + end_frame + "_averages_contacts.cpptraj"
+    cpptraj_file = generate_cpptraj_name(prmtop, trajin, start_frame, end_frame, "averages")
     out_file = cpptraj_file.replace('cpptraj', 'dat')
 
     with open(cpptraj_file, 'w') as f:
@@ -231,7 +216,7 @@ def create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, 
 
 
 # get the average of contacts of types from a given cpptraj data file
-def get_type_contacts(data_file, types):
+def get_type_contacts(data_file, frames):
     data = read_cpptraj_data_contacts_frames(data_file)
 
     atoms = []
@@ -260,7 +245,13 @@ def get_type_contacts(data_file, types):
                 total += a[1]
         type_occupancies.append([t, round(float(total) / float(counter), 2)])
 
-    return type_occupancies
+    out = []
+    for item in type_occupancies:
+        item = list(item)
+        item[1] = round(item[1] / frames, 2)
+        out.append(item)
+
+    return out
 
 
 # reads in the specfied file and returns a list that contains elements consisting of the two contacting atoms and
@@ -289,7 +280,7 @@ def read_cpptraj_data_contacts_frames(file_name):
             if line[0] is not '#':
                 atom = line[1].replace(':', '')
                 atom = atom.split('_')
-                frames = float(line[3])
+                frames = float(line[2])
                 out.append([atom, frames])
     return out
 
@@ -298,3 +289,11 @@ def read_cpptraj_data_contacts_frames(file_name):
 def trajin_start_end(trajin, start_frame, end_frame):
     trajin = "\"" + trajin + " " + start_frame + " " + end_frame + "\""
     return trajin
+
+
+# create cpptraj file name
+def generate_cpptraj_name(prmtop, trajin, start_frame, end_frame, description):
+    t = trajin.split("/")[-1].split(".")[0].replace(".", "_")
+    p = prmtop.split("/")[-1].split(".")[0]
+    cpptraj_file_name = p + "_" + t + "_" + start_frame + "_" + end_frame + "_" + description + "_contacts.cpptraj"
+    return cpptraj_file_name

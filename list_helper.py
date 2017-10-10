@@ -76,7 +76,7 @@ def c_merge_list(lst):
 # create list with residue@atom_type and occupancies
 def reformat_occupancies_list(occupancies):
     occ_list = []
-    occupancies = tuples_list_to_list_list(occupancies)
+    # occupancies = tuples_list_to_list_list(occupancies)
     # for i in range(0, len(occupancies)):
     #     if not i:
     #         occ_list = occupancies[i]
@@ -210,6 +210,9 @@ def prepare_output(output, avrgs):
     for item in totals:
         out += "," + str(round(item, 2))
 
+    if avrgs:
+        for item in average_totals:
+            out += "," + str(round(item, 2))
     out += "\n"
 
     for i in range(0, len(totals)):
@@ -392,12 +395,23 @@ def add_averages_column(lst, avrgs):
 
 # adds header to output list, TODO headers for arbitrary many inputs
 def add_headers(lst, avrgs):
-    top_header = ["", "", "Occupancies", ""]
+    top_header = [""] * len(lst[0])
+    header = []
+    columns = len(lst[0])
     if avrgs:
-        top_header.extend(["", "Averages", "", ""])
-    header = ["Atom", "#0", "#1", "#2"]
-    if avrgs:
-        header.extend(["#0", "#1", "#2"])
+        top_header[int(columns / 4)] = "Occupancies Contact Atoms"
+        top_header[int(1.5 * columns / 2)] = "Occupancy Averages Structure"
+
+        for i in range(0, int(columns / 2)):
+            header.append("#" + str(i))
+        header = header * 2
+        header = ["Atom"] + header
+
+    else:
+        top_header[int(columns / 2)] = "Occupancies Contact Atoms"
+        for i in range(0, columns):
+            header.append("#" + str(i))
+        header = ["Atom"] + header
 
     lst = [header] + lst
     lst = [top_header] + lst
