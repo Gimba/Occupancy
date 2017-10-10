@@ -270,13 +270,17 @@ def write_percentages_quotients(output, file_name):
 def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated_residue):
     file_name = investigated_residue
     f = file_name + '0_occupancies.pdf'
-    surface = cairo.PDFSurface(f, 595, 842)
+    width = 595
+    height = 842
+    surface = cairo.PDFSurface(f, width, height)
     ctx = cairo.Context(surface)
 
+    font_size = 60 / len(input_list)
+    offset = (width - 70) / ((len(input_list) * 2) + 1)
     # title
-    ctx.set_font_size(20)
+    ctx.set_font_size(font_size)
     ctx.set_source_rgb(0, 0, 0)
-    ctx.move_to(20, 30)
+    ctx.move_to(font_size, font_size + 10)
     title = investigated_residue
 
     if hydro:
@@ -287,19 +291,19 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
     ctx.show_text(title)
 
-    ctx.set_font_size(12)
-    y = 50
+    ctx.set_font_size(font_size - 8)
+    y = font_size + 30
     counter = 0
     for item in input_list:
-        ctx.move_to(20, y)
+        ctx.move_to(font_size, y)
         ctx.show_text("#" + str(counter) + " " + ''.join(item))
-        y += 14
+        y += font_size - 6
         counter += 1
 
-    ctx.set_font_size(20)
-    x = 20
-    y = y + 15
-    ctx.set_font_size(14)
+    ctx.set_font_size(font_size)
+    x = font_size
+    y = y + font_size - 5
+    ctx.set_font_size(font_size - 6)
     output = output.splitlines()
     pages = 0
     files = []
@@ -310,13 +314,13 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
         ctx.move_to(x, y)
         ctx.show_text(line[0])
-        x += 120
+        x += offset + 45
 
         # coloring
         if len(line[0]) > 0 and line[0][0].isdigit() or line[0] == 'SUM':
             ctx.move_to(x, y)
             ctx.show_text(line[1])
-            x += 75
+            x += offset
             ctx.set_source_rgb(0, 0, 0)
 
             if float(line[1]) > float(line[2]):
@@ -325,7 +329,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
                 ctx.set_source_rgb(0, 0.7, 0)
             ctx.move_to(x, y)
             ctx.show_text(line[2])
-            x += 75
+            x += offset
             ctx.set_source_rgb(0, 0, 0)
 
             if float(line[1]) > float(line[3]):
@@ -334,27 +338,27 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
                 ctx.set_source_rgb(0, 0.7, 0)
             ctx.move_to(x, y)
             ctx.show_text(line[3])
-            x += 75
+            x += offset
             ctx.set_source_rgb(0, 0, 0)
 
             if avrgs:
                 ctx.move_to(x, y)
                 ctx.show_text(str(round(float(line[4]), 2)))
-                x += 75
+                x += offset
                 ctx.move_to(x, y)
                 ctx.show_text(str(round(float(line[5]), 2)))
-                x += 75
+                x += offset
                 ctx.move_to(x, y)
                 ctx.show_text(str(round(float(line[6]), 2)))
-                x += 75
+                x += offset
         else:
             for item in line[1:]:
                 ctx.move_to(x, y)
                 ctx.show_text(item)
-                x += 75
+                x += offset
 
-        y += 16
-        x = 20
+        y += font_size - 4
+        x = font_size
         if y > 820:
             pages += 1
             files.append(f)
@@ -364,8 +368,8 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
             files.append(f)
             surface = cairo.PDFSurface(f, 595, 842)
             ctx = cairo.Context(surface)
-            ctx.set_font_size(14)
-            y = 30
+            ctx.set_font_size(font_size - 6)
+            y = font_size + 10
 
     surface.finish()
     surface.flush()
