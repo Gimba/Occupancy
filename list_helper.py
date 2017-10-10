@@ -109,22 +109,12 @@ def tuples_list_to_list_list(tuples_list):
 # calculate percentages and total values of occupancies
 def prepare_output(output, avrgs):
     output = output.splitlines()
+    residue_totals = []
     totals = []
-    init_tot = 0
-    muta_tot = 0
-    sim_tot = 0
-    init_res = 0
-    muta_res = 0
-    sim_res = 0
 
     if avrgs:
+        residue_average_totals = []
         average_totals = []
-        avg_init_tot = 0
-        avg_sim_tot = 0
-        avg_muta_tot = 0
-        avg_init_res = 0
-        avg_sim_res = 0
-        avg_muta_res = 0
 
     last_res = ""
     out = ""
@@ -140,102 +130,96 @@ def prepare_output(output, avrgs):
             # behavior if a new residue starts
             if last_res != res:
                 last_res = res
+                if not totals:
+                    totals = [0] * len(residue_totals)
+                    if avrgs:
+                        average_totals = [0] * len(residue_average_totals)
+
 
                 # add line with sum of contacts a selected residue
                 out += "SUM"
-                for item in totals:
-                    out += "," + str(item)
+
+                for i in range(0, len(residue_totals)):
+                    totals[i] += residue_totals[i]
+                    out += "," + str(residue_totals[i])
                 if avrgs:
-                    for item in average_totals:
-                        out += "," + str(item)
+                    for i in range(0, len(residue_average_totals)):
+                        average_totals[i] += residue_average_totals[i]
+                        out += "," + str(residue_average_totals[i])
                 out += "\n"
 
                 # add line with percentage values
                 percentages = [0]
-                for i in range(1, len(totals)):
-                    percentage = (totals[0] - totals[i]) * 100 / totals[0]
+                for i in range(1, len(residue_totals)):
+                    percentage = (residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
                     percentages.append(percentage)
                 if avrgs:
                     percentages.append(0)
-                    for i in range(1, len(average_totals)):
-                        percentage = (average_totals[0] - average_totals[i]) * 100 / average_totals[0]
+                    for i in range(1, len(residue_average_totals)):
+                        percentage = (residue_average_totals[0] - residue_average_totals[i]) * 100 / \
+                                     residue_average_totals[0]
                         percentages.append(percentage)
 
                 for item in percentages:
                     out += "," + str(round(item, 2)) + "%"
                 out += "\n\n"
-                totals = []
+                residue_totals = []
                 if avrgs:
-                    average_totals = []
-
-                # reset values for summing up residue contacts to start from first values of new residue
-                    # init_res = float(line[1])
-                    # muta_res = float(line[2])
-                    # sim_res = float(line[3])
-                    # if avrgs:
-                    #     avg_init_res = float(line[4])
-                    #     avg_muta_res = float(line[5])
-                    #     avg_sim_res = float(line[6])
-            # else:
-            #     # add up values for the current residue
-            #     init_res += float(line[1])
-            #     muta_res += float(line[2])
-            #     sim_res += float(line[3])
-            #
-            #     if avrgs:
-            #         avg_init_res += float(line[4])
-            #         avg_muta_res += float(line[5])
-            #         avg_sim_res += float(line[6])
+                    residue_average_totals = []
 
             line = line.split(',')[1:]
             middle = len(line) / 2
-            if not totals:
-                totals = [0] * middle
+            if not residue_totals:
+                residue_totals = [0] * middle
 
             for i in range(0, middle):
-                totals[i] += float(line[i])
+                residue_totals[i] += float(line[i])
 
             if avrgs:
-                if not average_totals:
-                    average_totals = [0] * middle
+                if not residue_average_totals:
+                    residue_average_totals = [0] * middle
                 for i in range(0, middle):
-                    average_totals[i] += float(line[i + middle])
+                    residue_average_totals[i] += float(line[i + middle])
 
         out += l + "\n"
 
     # handling of last residue
-    # out += "SUM," + str(init_res) + "," + str(muta_res) + "," + str(sim_res)
-    # if avrgs:
-    #     out += "," + str(avg_init_res) + "," + str(avg_muta_res) + "," + str(avg_sim_res)
-    # out += "\n"
-    #
-    # # add line with percentage values
-    # muta_res_per = (init_res - muta_res) * 100 / init_res
-    # sim_res_per = (init_res - sim_res) * 100 / init_res
-    # out += ",," + str(round(muta_res_per, 2)) + "%," + str(round(sim_res_per, 2)) + "%"
-    # if avrgs:
-    #     avg_muta_res_per = (avg_init_res - avg_muta_res) * 100 / avg_init_res
-    #     avg_sim_res_per = (avg_init_res - avg_sim_res) * 100 / avg_init_res
-    #     out += ",," + str(round(avg_muta_res_per, 2)) + "%," + str(round(avg_sim_res_per, 2)) + "%"
-    # out += "\n\n"
-    #
-    # # total values at the end of document
-    # out += "total," + str(init_tot) + "," + str(muta_tot) + "," + str(sim_tot)
-    # if avrgs:
-    #     out += "," + str(round(avg_init_tot, 2)) + "," + str(round(avg_muta_tot, 2)) + "," + str(round(avg_sim_tot, 2))
-    # out += "\n"
-    #
-    # # total percentages
-    # muta_tot_per = (init_tot - muta_tot) * 100 / init_tot
-    # sim_tot_per = (init_tot - sim_tot) * 100 / init_tot
-    #
-    # out += ",," + str(round(muta_tot_per, 2)) + "%," + str(round(sim_tot_per, 2)) + "%"
-    # if avrgs:
-    #     avg_muta_tot_per = (avg_init_tot - avg_muta_tot) * 100 / avg_init_tot
-    #     avg_sim_tot_per = (avg_init_tot - avg_sim_tot) * 100 / avg_init_tot
-    #     out += ",," + str(round(avg_muta_tot_per, 2)) + "%," + str(
-    #         round(avg_sim_tot_per, 2)) + "%"
-    # out += "\n"
+    out += "SUM"
+    for item in residue_totals:
+        out += "," + str(item)
+    if avrgs:
+        for item in residue_average_totals:
+            out += "," + str(item)
+    out += "\n"
+
+    # add line with percentage values
+    percentages = [0]
+    for i in range(1, len(residue_totals)):
+        percentage = (residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
+        percentages.append(percentage)
+    if avrgs:
+        percentages.append(0)
+        for i in range(1, len(residue_average_totals)):
+            percentage = (residue_average_totals[0] - residue_average_totals[i]) * 100 / residue_average_totals[0]
+            percentages.append(percentage)
+
+    for item in percentages:
+        out += "," + str(round(item, 2)) + "%"
+    out += "\n\nSum"
+
+    for item in totals:
+        out += "," + str(round(item, 2))
+
+    out += "\n"
+
+    for i in range(0, len(totals)):
+        percentage = (totals[0] - totals[i]) * 100 / totals[0]
+        out += "," + str(round(percentage, 2)) + "%"
+
+    if avrgs:
+        for i in range(0, len(average_totals)):
+            percentage = (average_totals[0] - average_totals[i]) * 100 / average_totals[0]
+            out += "," + str(round(percentage, 2)) + "%"
 
     return out
 
