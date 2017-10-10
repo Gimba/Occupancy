@@ -1,4 +1,5 @@
 from os import remove
+from os import rename
 
 import cairo
 from PyPDF2 import PdfFileMerger
@@ -373,12 +374,13 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
     surface.finish()
     surface.flush()
-
-    merger = PdfFileMerger()
-    for f in files:
-        merger.append(f, 'rb')
-    merger.write(file_name + '_occupancies.pdf')
-
+    if pages > 0:
+        merger = PdfFileMerger()
+        for f in files:
+            merger.append(f, 'rb')
+        merger.write(file_name + '_occupancies.pdf')
+    else:
+        rename(f, file_name + '_occupancies.pdf')
     # remove merged pdf files
     for item in files:
         remove(item)
