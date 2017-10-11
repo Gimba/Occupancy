@@ -2,6 +2,7 @@ from os import remove
 from os import rename
 
 import cairo
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileMerger
 
@@ -440,22 +441,23 @@ def value_dependent_coloring(ctx, value1, value2):
 # plot total value
 def plot_total_values(lst, trajectories, avrgs):
 
-    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     if avrgs:
         columns = (len(lst[0][1:]) / 2) + 1
     else:
         columns = len(lst[0][1:])
 
+    # choose colors of lines
     NUM_COLORS = len(lst)
-
     cm = plt.get_cmap('Paired')
-    fig, axes = plt.subplots(ncols=2, figsize=(60, 30))
+    fig = plt.figure(figsize=(60, 30))
+
+    gs = gridspec.GridSpec(nrows=2, ncols=2)
     x = range(0, len(trajectories))
 
-    plt.setp(axes, xticks=x, xticklabels=trajectories)
+    # setup x ticks to be the trajectory names
 
-    ax = axes[0]
-    # ax.title("Residues")
+    ax = fig.add_subplot(gs[0, 0])
+    plt.setp(ax, xticks=x, xticklabels=trajectories)
     count = 1
     for item in lst[:-1]:
         color = cm(float(count) / NUM_COLORS)
@@ -465,16 +467,23 @@ def plot_total_values(lst, trajectories, avrgs):
 
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
-        ax.plot(item2, c=color, dashes=[30, 5, 10, 5], label='average ' + item[0])
+        ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
 
         count += 1
 
-    ax = axes[1]
-    ax.plot(lst[-1][1:columns])
-    ax.plot(lst[-1][columns:])
+    # plot total occupancy values
+    color = cm(float(count) / NUM_COLORS)
+    ax = fig.add_subplot(gs[0, 1])
+    ax.plot(lst[-1][1:columns], c=color, label='total')
+    ax.plot(lst[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
 
     plt.xlabel('Trajectory')
     plt.ylabel('Contacts')
-    # plt.legend()
 
+    # rotate xticks, show and move legend
+    for item in fig.axes:
+        item.legend(bbox_to_anchor=(1.13, 1.0))
+        for tick in item.get_xticklabels():
+            tick.set_rotation(45)
+            tick.set_ha('right')
     plt.show()
