@@ -171,7 +171,11 @@ def prepare_output(output, avrgs):
                     residue_average_totals = []
 
             line = line.split(',')[1:]
-            middle = len(line) / 2
+            if avrgs:
+                middle = len(line) / 2
+            else:
+                middle = len(line)
+
             if not residue_totals:
                 residue_totals = [0] * middle
 
@@ -418,7 +422,7 @@ def add_headers(lst, avrgs):
 
     else:
         top_header[int(columns / 2)] = "Occupancies Contact Atoms"
-        for i in range(0, columns):
+        for i in range(0, columns - 1):
             header.append("#" + str(i))
         header = ["Atom"] + header
 
