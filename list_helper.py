@@ -78,13 +78,6 @@ def c_merge_list(lst):
 
 # create list with residue@atom_type and occupancies
 def reformat_occupancies_list(occupancies):
-    occ_list = []
-    # occupancies = tuples_list_to_list_list(occupancies)
-    # for i in range(0, len(occupancies)):
-    #     if not i:
-    #         occ_list = occupancies[i]
-    #     else:
-    #         occ_list = c_merge_list(occ_list, occupancies[i], 0, 0, -1)
 
     occ_list = c_merge_list(occupancies)
     res_numb = c_get(occ_list, 0)
@@ -274,7 +267,7 @@ def write_percentages_quotients(output, file_name):
 
 
 # write occupancy data to pdf file
-def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated_residue):
+def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
     file_name = investigated_residue
     f = file_name + '0_occupancies.pdf'
     width = 595
@@ -302,13 +295,13 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
     ctx.show_text(title)
 
-    ctx.set_font_size(font_size - 8)
+    ctx.set_font_size(font_size - 4)
     y = font_size + 30
     counter = 0
     for item in input_list:
         ctx.move_to(font_size, y)
         ctx.show_text("#" + str(counter) + " " + ''.join(item))
-        y += font_size - 6
+        y += font_size - 2
         counter += 1
 
     ctx.set_font_size(font_size)
