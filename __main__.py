@@ -20,6 +20,7 @@ def main():
     parser.add_argument('-a', '--avrgs', help='calculate averages', action='store_true')
     parser.add_argument('-w', '--wat', help='strip water', action='store_true')
     parser.add_argument('-hy', '--hydro', help='strip hydrogen', action='store_true')
+    parser.add_argument('-m', '--mapping', nargs='?', help='add file to recalculate residue numbers')
     args = parser.parse_args()
 
     # parse inputs into input object

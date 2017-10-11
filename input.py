@@ -94,9 +94,15 @@ class Input:
         # output folder
         self.folder = "occupancies/"
 
+        # mapping file (contains two columns seperated by a space, line 1 contains the original descriptions which will
+        # transformed into values of column 2, e.g. 1 29 \n 2 39 \n ...)
+        self.mapping = 0
+
         for i in range(0, len(argv)):
             if argv[i] == "-f":
                 self.folder = argv[i + 1]
+            if argv[i] == "-m":
+                self.mapping = argv[i + 1]
 
         # masks
         self.mask1 = 0
