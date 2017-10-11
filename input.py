@@ -124,5 +124,6 @@ class Input:
     def get_trajectories(self):
         traj = []
         for item in self.input:
+            item[1] = item[1].split("/")[-1]
             traj.append(' '.join(item[1:]))
         return traj
