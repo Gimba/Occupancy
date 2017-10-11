@@ -246,7 +246,7 @@ def write_percentages_quotients(output, file_name):
         line = []
         item = item.split(',')
         if len(item[0]) > 0:
-            if item[0][0].isdigit():
+            if item[0][1].isdigit() or item[0][0].isdigit():
                 residue = item[0].split('@')[0]
                 if residue != '' and last_residue != residue:
                     last_residue = residue
