@@ -82,6 +82,10 @@ def main():
     # add headers
     output = add_headers(occupancies, ip.calc_averages)
 
+    # use the mapping file to transform residue numbering
+    if ip.mapping:
+        map_residues(ip.mapping, output)
+
     # format output
     output = output_2D_list(output)
     output = prepare_output(output, ip.calc_averages)

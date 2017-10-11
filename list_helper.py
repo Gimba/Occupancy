@@ -119,7 +119,7 @@ def prepare_output(output, avrgs):
 
     for line in output:
         l = line
-        if line[0].isdigit():
+        if line[1].isdigit() or line[0].isdigit():
 
             res = line.split('@')[0]
             if last_res == "":
@@ -515,3 +515,17 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
             tick.set_ha('right')
 
     plt.show()
+
+
+# transform residue numbers using a mapping file
+def map_residues(mapping, lst):
+    with open(mapping, 'r') as f:
+        mapping = f.read().splitlines()
+        mapping = [item.split() for item in mapping]
+
+        for element in lst:
+            for item in mapping:
+                if element[0].split('@')[0] == item[0]:
+                    element[0] = item[1] + '@' + element[0].split('@')[1]
+
+    return lst
