@@ -459,12 +459,9 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
     fig = plt.figure(figsize=(60, 30))
 
     gs = gridspec.GridSpec(nrows=2, ncols=2)
-    x = range(0, len(trajectories))
-
-    # setup x ticks to be the trajectory names
+    x_ticks = range(0, len(trajectories))
 
     ax = fig.add_subplot(gs[0, 0])
-    plt.setp(ax, xticks=x, xticklabels=trajectories)
     count = 1
     for item in totals[:-1]:
         color = cm(float(count) / NUM_COLORS)
@@ -475,7 +472,7 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
         ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
-
+        ax.set_ylabel(r'Atoms within 3.9A')
         count += 1
 
     # plot total occupancy values
@@ -483,6 +480,7 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
     ax = fig.add_subplot(gs[0, 1])
     ax.plot(totals[-1][1:columns], c=color, label='total')
     ax.plot(totals[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
+    ax.set_ylabel(r'Atoms within 3.9A')
 
     # plot percentage values
     ax = fig.add_subplot(gs[1, 0])
@@ -496,19 +494,24 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
         ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
-
+        ax.set_ylabel("%")
         count += 1
 
-    # plot total occupancy values
+    # plot average percentage values
     color = cm(float(count) / NUM_COLORS)
     ax = fig.add_subplot(gs[1, 1])
     ax.plot(percentages[-1][1:columns], c=color, label='total')
     ax.plot(percentages[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
+    ax.set_ylabel("%")
+
+    plt.subplots_adjust(bottom=0.12, hspace=0.35)
 
     # rotate xticks, show and move legend
     for item in fig.axes:
         item.legend(bbox_to_anchor=(1.13, 1.0))
+        plt.setp(item.axes, xticks=x_ticks, xticklabels=trajectories)
         for tick in item.get_xticklabels():
             tick.set_rotation(45)
             tick.set_ha('right')
+
     plt.show()
