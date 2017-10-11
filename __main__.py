@@ -93,7 +93,7 @@ def main():
     if ip.calc_averages:
         totals = write_percentages_quotients(output, ip.mutation + "_percentage_quotients.dat")
         trajectories = ip.get_trajectories()
-        plot_total_values(totals, trajectories, ip.argv)
+        plot_total_values(totals, trajectories, ip.calc_averages)
 
 if __name__ == "__main__":
     main()

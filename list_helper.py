@@ -439,36 +439,41 @@ def value_dependent_coloring(ctx, value1, value2):
 
 # plot total value
 def plot_total_values(lst, trajectories, avrgs):
-    fig = plt.figure()
-    plt.title("Residues")
+
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     if avrgs:
         columns = (len(lst[0][1:]) / 2) + 1
     else:
         columns = len(lst[0][1:])
 
-    count = 0
-
     NUM_COLORS = len(lst)
 
     cm = plt.get_cmap('Paired')
-    fig = plt.figure()
+    fig, axes = plt.subplots(ncols=2, figsize=(60, 30))
+    x = range(0, len(trajectories))
+
+    plt.setp(axes, xticks=x, xticklabels=trajectories)
+
+    ax = axes[0]
+    # ax.title("Residues")
     count = 1
     for item in lst[:-1]:
         color = cm(float(count) / NUM_COLORS)
         # plot residue occupancies for residue contacting atoms
         item1 = [float(x) for x in item[1:columns]]
-        plt.plot(item1, c=color, label=item[0])
+        ax.plot(item1, c=color, label=item[0])
 
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
-        plt.plot(item2, c=color, dashes=[30, 5, 10, 5], label='average ' + item[0])
+        ax.plot(item2, c=color, dashes=[30, 5, 10, 5], label='average ' + item[0])
 
         count += 1
 
+    ax = axes[1]
+    ax.plot(lst[-1][1:columns])
+    ax.plot(lst[-1][columns:])
+
     plt.xlabel('Trajectory')
-    x = range(0, len(trajectories))
-    plt.xticks(x, trajectories, rotation=70)
     plt.ylabel('Contacts')
     # plt.legend()
 
