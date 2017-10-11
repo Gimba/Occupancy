@@ -333,11 +333,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
             if avrgs:
                 # coloring of residue contacting atom occupancies
                 for i in range(2, (len(line) - 1) / 2):
-
-                    if float(line[1].strip("%")) > float(line[i].strip("%")):
-                        ctx.set_source_rgb(0.9, 0, 0)
-                    if float(line[1].strip("%")) < float(line[i].strip("%")):
-                        ctx.set_source_rgb(0, 0.7, 0)
+                    value_dependent_coloring(ctx, line[1], line[i])
                     ctx.move_to(x, y)
                     ctx.show_text(line[i])
                     x += offset
@@ -345,11 +341,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
                 # coloring of average occupancies of the whole structure
                 for i in range((len(line) - 1) / 2, len(line)):
-
-                    if float(line[avrgs_start].strip("%")) > float(line[i].strip("%")):
-                        ctx.set_source_rgb(0.9, 0, 0)
-                    if float(line[avrgs_start].strip("%")) < float(line[i].strip("%")):
-                        ctx.set_source_rgb(0, 0.7, 0)
+                    value_dependent_coloring(ctx, line[avrgs_start], line[i])
                     ctx.move_to(x, y)
                     ctx.show_text(line[i])
                     x += offset
@@ -357,11 +349,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
             else:
                 # coloring of residue contacting atom occupancies
                 for i in range(2, len(line)):
-
-                    if float(line[1].strip("%")) > float(line[i].strip("%")):
-                        ctx.set_source_rgb(0.9, 0, 0)
-                    if float(line[1].strip("%")) < float(line[i].strip("%")):
-                        ctx.set_source_rgb(0, 0.7, 0)
+                    value_dependent_coloring(ctx, line[1], line[i])
                     ctx.move_to(x, y)
                     ctx.show_text(line[i])
                     x += offset
@@ -437,3 +425,11 @@ def add_headers(lst, avrgs):
     lst = [header] + lst
     lst = [top_header] + lst
     return lst
+
+
+# defines the color of the next output
+def value_dependent_coloring(ctx, value1, value2):
+    if float(value1.strip("%")) > float(value2.strip("%")):
+        ctx.set_source_rgb(0.9, 0, 0)
+    if float(value1.strip("%")) < float(value2.strip("%")):
+        ctx.set_source_rgb(0, 0.7, 0)
