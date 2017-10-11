@@ -330,29 +330,42 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
             x += offset
             ctx.set_source_rgb(0, 0, 0)
 
-            # coloring of residue contacting atom occupancies
-            for i in range(2, (len(line) - 1) / 2):
+            if avrgs:
+                # coloring of residue contacting atom occupancies
+                for i in range(2, (len(line) - 1) / 2):
 
-                if float(line[1].strip("%")) > float(line[i].strip("%")):
-                    ctx.set_source_rgb(0.9, 0, 0)
-                if float(line[1].strip("%")) < float(line[i].strip("%")):
-                    ctx.set_source_rgb(0, 0.7, 0)
-                ctx.move_to(x, y)
-                ctx.show_text(line[i])
-                x += offset
-                ctx.set_source_rgb(0, 0, 0)
+                    if float(line[1].strip("%")) > float(line[i].strip("%")):
+                        ctx.set_source_rgb(0.9, 0, 0)
+                    if float(line[1].strip("%")) < float(line[i].strip("%")):
+                        ctx.set_source_rgb(0, 0.7, 0)
+                    ctx.move_to(x, y)
+                    ctx.show_text(line[i])
+                    x += offset
+                    ctx.set_source_rgb(0, 0, 0)
 
-            # coloring of average occupancies of the whole structure
-            for i in range((len(line) - 1) / 2, len(line)):
+                # coloring of average occupancies of the whole structure
+                for i in range((len(line) - 1) / 2, len(line)):
 
-                if float(line[avrgs_start].strip("%")) > float(line[i].strip("%")):
-                    ctx.set_source_rgb(0.9, 0, 0)
-                if float(line[avrgs_start].strip("%")) < float(line[i].strip("%")):
-                    ctx.set_source_rgb(0, 0.7, 0)
-                ctx.move_to(x, y)
-                ctx.show_text(line[i])
-                x += offset
-                ctx.set_source_rgb(0, 0, 0)
+                    if float(line[avrgs_start].strip("%")) > float(line[i].strip("%")):
+                        ctx.set_source_rgb(0.9, 0, 0)
+                    if float(line[avrgs_start].strip("%")) < float(line[i].strip("%")):
+                        ctx.set_source_rgb(0, 0.7, 0)
+                    ctx.move_to(x, y)
+                    ctx.show_text(line[i])
+                    x += offset
+                    ctx.set_source_rgb(0, 0, 0)
+            else:
+                # coloring of residue contacting atom occupancies
+                for i in range(2, len(line)):
+
+                    if float(line[1].strip("%")) > float(line[i].strip("%")):
+                        ctx.set_source_rgb(0.9, 0, 0)
+                    if float(line[1].strip("%")) < float(line[i].strip("%")):
+                        ctx.set_source_rgb(0, 0.7, 0)
+                    ctx.move_to(x, y)
+                    ctx.show_text(line[i])
+                    x += offset
+                    ctx.set_source_rgb(0, 0, 0)
 
         else:
             for item in line[1:]:
