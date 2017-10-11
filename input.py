@@ -120,3 +120,9 @@ class Input:
             file_names.append(" ".join(item))
 
         return file_names
+
+    def get_trajectories(self):
+        traj = []
+        for item in self.input:
+            traj.append(' '.join(item[1:]))
+        return traj
