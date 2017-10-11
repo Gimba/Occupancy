@@ -10,6 +10,8 @@ def output_2D_list(list2d):
     for item in list2d:
         for cell in item:
             output += str(cell) + ","
+        # remove unnecessary "," at the end of each line
+        output = output[:-1]
         output += "\n"
     return output
 
@@ -276,6 +278,10 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
     surface = cairo.PDFSurface(f, width, height)
     ctx = cairo.Context(surface)
 
+    # calculate the index of the first column containing average values of the whole structure
+    if avrgs:
+        avrgs_start = len(input_list) + 1
+
     font_size = 60 / len(input_list)
     offset = (width - 70) / ((len(input_list) * 2) + 1)
     # title
@@ -317,41 +323,37 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
         ctx.show_text(line[0])
         x += offset + 45
 
-        # coloring
+        # coloring, select lines with atoms as well as summation
         if len(line[0]) > 0 and line[0][0].isdigit() or line[0] == 'SUM':
             ctx.move_to(x, y)
             ctx.show_text(line[1])
             x += offset
             ctx.set_source_rgb(0, 0, 0)
 
-            if float(line[1]) > float(line[2]):
-                ctx.set_source_rgb(0.9, 0, 0)
-            if float(line[1]) < float(line[2]):
-                ctx.set_source_rgb(0, 0.7, 0)
-            ctx.move_to(x, y)
-            ctx.show_text(line[2])
-            x += offset
-            ctx.set_source_rgb(0, 0, 0)
+            # coloring of residue contacting atom occupancies
+            for i in range(2, (len(line) - 1) / 2):
 
-            if float(line[1]) > float(line[3]):
-                ctx.set_source_rgb(0.9, 0, 0)
-            if float(line[1]) < float(line[3]):
-                ctx.set_source_rgb(0, 0.7, 0)
-            ctx.move_to(x, y)
-            ctx.show_text(line[3])
-            x += offset
-            ctx.set_source_rgb(0, 0, 0)
+                if float(line[1].strip("%")) > float(line[i].strip("%")):
+                    ctx.set_source_rgb(0.9, 0, 0)
+                if float(line[1].strip("%")) < float(line[i].strip("%")):
+                    ctx.set_source_rgb(0, 0.7, 0)
+                ctx.move_to(x, y)
+                ctx.show_text(line[i])
+                x += offset
+                ctx.set_source_rgb(0, 0, 0)
 
-            if avrgs:
+            # coloring of average occupancies of the whole structure
+            for i in range((len(line) - 1) / 2, len(line)):
+
+                if float(line[avrgs_start].strip("%")) > float(line[i].strip("%")):
+                    ctx.set_source_rgb(0.9, 0, 0)
+                if float(line[avrgs_start].strip("%")) < float(line[i].strip("%")):
+                    ctx.set_source_rgb(0, 0.7, 0)
                 ctx.move_to(x, y)
-                ctx.show_text(str(round(float(line[4]), 2)))
+                ctx.show_text(line[i])
                 x += offset
-                ctx.move_to(x, y)
-                ctx.show_text(str(round(float(line[5]), 2)))
-                x += offset
-                ctx.move_to(x, y)
-                ctx.show_text(str(round(float(line[6]), 2)))
-                x += offset
+                ctx.set_source_rgb(0, 0, 0)
+
         else:
             for item in line[1:]:
                 ctx.move_to(x, y)
@@ -406,7 +408,7 @@ def add_headers(lst, avrgs):
     columns = len(lst[0])
     if avrgs:
         top_header[int(columns / 4)] = "Occupancies Contact Atoms"
-        top_header[int(1.5 * columns / 2)] = "Occupancy Averages Structure"
+        top_header[int(1.5 * columns / 2) - 1] = "Occupancy Averages Structure"
 
         for i in range(0, int(columns / 2)):
             header.append("#" + str(i))
