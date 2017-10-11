@@ -513,8 +513,8 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
         for tick in item.get_xticklabels():
             tick.set_rotation(45)
             tick.set_ha('right')
-
-    plt.show()
+    plt.savefig('plot.png')
+    # plt.show()
 
 
 # transform residue numbers using a mapping file
