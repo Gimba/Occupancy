@@ -332,7 +332,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
 
             if avrgs:
                 # coloring of residue contacting atom occupancies
-                for i in range(2, (len(line) - 1) / 2):
+                for i in range(2, avrgs_start):
                     value_dependent_coloring(ctx, line[1], line[i])
                     ctx.move_to(x, y)
                     ctx.show_text(line[i])
@@ -340,7 +340,7 @@ def output_to_pdf(output, file_name, avrgs, wat, hydro, input_list, investigated
                     ctx.set_source_rgb(0, 0, 0)
 
                 # coloring of average occupancies of the whole structure
-                for i in range((len(line) - 1) / 2, len(line)):
+                for i in range(avrgs_start, len(line)):
                     value_dependent_coloring(ctx, line[avrgs_start], line[i])
                     ctx.move_to(x, y)
                     ctx.show_text(line[i])
