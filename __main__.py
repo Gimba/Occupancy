@@ -91,9 +91,9 @@ def main():
     output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
                   input_file_names, ip.mutation)
     if ip.calc_averages:
-        totals = write_percentages_quotients(output, ip.mutation + "_percentage_quotients.dat")
+        totals, percentages = write_percentages_quotients(output, ip.mutation + "_percentage_quotients.dat")
         trajectories = ip.get_trajectories()
-        plot_total_values(totals, trajectories, ip.calc_averages)
+        plot_total_values(totals, percentages, trajectories, ip.calc_averages)
 
 if __name__ == "__main__":
     main()

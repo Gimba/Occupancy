@@ -237,40 +237,47 @@ def write_output(output, file_name):
 
 def write_percentages_quotients(output, file_name):
     residue = 0
+    last_residue = 0
     output = output.split('\n')
     temp = []
     totals = []
+    percentages = []
     for item in output:
         line = []
         item = item.split(',')
         if len(item[0]) > 0:
             if item[0][0].isdigit():
                 residue = item[0].split('@')[0]
+                if residue != '' and last_residue != residue:
+                    last_residue = residue
             elif item[0] == 'SUM':
                 line.append(residue)
                 line.extend(item[1:])
                 totals.append(line)
-                residue = ''
-        if len(item) > 2 and '%' in item[2]:
+        if len(item) > 2 and '%' in item[1]:
             line.append(residue)
             line.extend(item)
-            temp.append(filter(None, line))
-    out = []
-    print temp
-    for item in temp:
-        muta = item[1].strip('%')
-        muta_avg = item[3].strip('%')
-        quot_muta = float(muta) - float(muta_avg)
-        sim = item[2].strip('%')
-        sim_avg = item[4].strip('%')
-        quot_sim = float(sim) - float(sim_avg)
-        line = item[0] + " " + str(quot_muta) + " " + str(quot_sim)
-        out.append(line)
-    print out
-    with open(file_name, 'w') as f:
-        for item in out:
-            f.write(item + "\n")
-    return totals
+            line = filter(None, line)
+            temp.append(line)
+            percentages.append([item.strip("%") for item in line])
+            new_res = 1
+
+    # out = []
+    # print temp
+    # for item in temp:
+    #     muta = item[1].strip('%')
+    #     muta_avg = item[3].strip('%')
+    #     quot_muta = float(muta) - float(muta_avg)
+    #     sim = item[2].strip('%')
+    #     sim_avg = item[4].strip('%')
+    #     quot_sim = float(sim) - float(sim_avg)
+    #     line = item[0] + " " + str(quot_muta) + " " + str(quot_sim)
+    #     out.append(line)
+    # print out
+    # with open(file_name, 'w') as f:
+    #     for item in out:
+    #         f.write(item + "\n")
+    return totals, percentages
 
 # write occupancy data to pdf file
 def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
@@ -439,15 +446,15 @@ def value_dependent_coloring(ctx, value1, value2):
 
 
 # plot total value
-def plot_total_values(lst, trajectories, avrgs):
+def plot_total_values(totals, percentages, trajectories, avrgs):
 
     if avrgs:
-        columns = (len(lst[0][1:]) / 2) + 1
+        columns = (len(totals[0][1:]) / 2) + 1
     else:
-        columns = len(lst[0][1:])
+        columns = len(totals[0][1:])
 
     # choose colors of lines
-    NUM_COLORS = len(lst)
+    NUM_COLORS = len(totals)
     cm = plt.get_cmap('Paired')
     fig = plt.figure(figsize=(60, 30))
 
@@ -459,7 +466,7 @@ def plot_total_values(lst, trajectories, avrgs):
     ax = fig.add_subplot(gs[0, 0])
     plt.setp(ax, xticks=x, xticklabels=trajectories)
     count = 1
-    for item in lst[:-1]:
+    for item in totals[:-1]:
         color = cm(float(count) / NUM_COLORS)
         # plot residue occupancies for residue contacting atoms
         item1 = [float(x) for x in item[1:columns]]
@@ -474,11 +481,29 @@ def plot_total_values(lst, trajectories, avrgs):
     # plot total occupancy values
     color = cm(float(count) / NUM_COLORS)
     ax = fig.add_subplot(gs[0, 1])
-    ax.plot(lst[-1][1:columns], c=color, label='total')
-    ax.plot(lst[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
+    ax.plot(totals[-1][1:columns], c=color, label='total')
+    ax.plot(totals[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
 
-    plt.xlabel('Trajectory')
-    plt.ylabel('Contacts')
+    # plot percentage values
+    ax = fig.add_subplot(gs[1, 0])
+    count = 1
+    for item in percentages[:-1]:
+        color = cm(float(count) / NUM_COLORS)
+        # plot residue occupancies for residue contacting atoms
+        item1 = [float(x) for x in item[1:columns]]
+        ax.plot(item1, c=color, label=item[0])
+
+        # plot average values of the whole structure
+        item2 = [float(x) for x in item[columns:]]
+        ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
+
+        count += 1
+
+    # plot total occupancy values
+    color = cm(float(count) / NUM_COLORS)
+    ax = fig.add_subplot(gs[1, 1])
+    ax.plot(percentages[-1][1:columns], c=color, label='total')
+    ax.plot(percentages[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
 
     # rotate xticks, show and move legend
     for item in fig.axes:
