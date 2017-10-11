@@ -2,6 +2,7 @@ from os import remove
 from os import rename
 
 import cairo
+import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileMerger
 
 
@@ -205,7 +206,7 @@ def prepare_output(output, avrgs):
 
     for item in percentages:
         out += "," + str(round(item, 2)) + "%"
-    out += "\n\nSum"
+    out += "\n\nSUM"
 
     for item in totals:
         out += "," + str(round(item, 2))
@@ -237,14 +238,18 @@ def write_percentages_quotients(output, file_name):
     residue = 0
     output = output.split('\n')
     temp = []
+    totals = []
     for item in output:
         line = []
         item = item.split(',')
         if len(item[0]) > 0:
             if item[0][0].isdigit():
                 residue = item[0].split('@')[0]
-            elif item[0] == 'total':
-                residue = 'total'
+            elif item[0] == 'SUM':
+                line.append(residue)
+                line.extend(item[1:])
+                totals.append(line)
+                residue = ''
         if len(item) > 2 and '%' in item[2]:
             line.append(residue)
             line.extend(item)
@@ -264,7 +269,7 @@ def write_percentages_quotients(output, file_name):
     with open(file_name, 'w') as f:
         for item in out:
             f.write(item + "\n")
-
+    return totals
 
 # write occupancy data to pdf file
 def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
@@ -430,3 +435,41 @@ def value_dependent_coloring(ctx, value1, value2):
         ctx.set_source_rgb(0.9, 0, 0)
     if float(value1.strip("%")) < float(value2.strip("%")):
         ctx.set_source_rgb(0, 0.7, 0)
+
+
+# plot total value
+def plot_total_values(lst, trajectories, avrgs):
+    fig = plt.figure()
+    plt.title("Residues")
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    if avrgs:
+        columns = (len(lst[0][1:]) / 2) + 1
+    else:
+        columns = len(lst[0][1:])
+
+    count = 0
+
+    NUM_COLORS = len(lst)
+
+    cm = plt.get_cmap('Paired')
+    fig = plt.figure()
+    count = 1
+    for item in lst[:-1]:
+        color = cm(float(count) / NUM_COLORS)
+        # plot residue occupancies for residue contacting atoms
+        item1 = [float(x) for x in item[1:columns]]
+        plt.plot(item1, c=color, label=item[0])
+
+        # plot average values of the whole structure
+        item2 = [float(x) for x in item[columns:]]
+        plt.plot(item2, c=color, dashes=[30, 5, 10, 5], label='average ' + item[0])
+
+        count += 1
+
+    plt.xlabel('Trajectory')
+    x = range(0, len(trajectories))
+    plt.xticks(x, trajectories, rotation=70)
+    plt.ylabel('Contacts')
+    # plt.legend()
+
+    plt.show()
