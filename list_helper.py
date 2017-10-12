@@ -343,7 +343,7 @@ def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
         x += offset + 20
 
         # coloring, select lines with atoms as well as summation
-        if len(line[0]) > 0 and line[0][0].isdigit() or line[0] == 'SUM':
+        if len(line[0]) > 0 and (line[0][0].isdigit() or line[0][1].isdigit()) or line[0] == 'SUM':
             ctx.move_to(x, y)
             ctx.show_text(line[1])
             x += offset
