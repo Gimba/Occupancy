@@ -149,12 +149,12 @@ def prepare_output(output, avrgs):
                 # add line with percentage values
                 percentages = [0]
                 for i in range(1, len(residue_totals)):
-                    percentage = (residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
+                    percentage = -(residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
                     percentages.append(percentage)
                 if avrgs:
                     percentages.append(0)
                     for i in range(1, len(residue_average_totals)):
-                        percentage = (residue_average_totals[0] - residue_average_totals[i]) * 100 / \
+                        percentage = -(residue_average_totals[0] - residue_average_totals[i]) * 100 / \
                                      residue_average_totals[0]
                         percentages.append(percentage)
 
@@ -197,12 +197,12 @@ def prepare_output(output, avrgs):
     # add line with percentage values
     percentages = [0]
     for i in range(1, len(residue_totals)):
-        percentage = (residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
+        percentage = -(residue_totals[0] - residue_totals[i]) * 100 / residue_totals[0]
         percentages.append(percentage)
     if avrgs:
         percentages.append(0)
         for i in range(1, len(residue_average_totals)):
-            percentage = (residue_average_totals[0] - residue_average_totals[i]) * 100 / residue_average_totals[0]
+            percentage = -(residue_average_totals[0] - residue_average_totals[i]) * 100 / residue_average_totals[0]
             percentages.append(percentage)
 
     for item in percentages:
@@ -218,12 +218,12 @@ def prepare_output(output, avrgs):
     out += "\n"
 
     for i in range(0, len(totals)):
-        percentage = (totals[0] - totals[i]) * 100 / totals[0]
+        percentage = -(totals[0] - totals[i]) * 100 / totals[0]
         out += "," + str(round(percentage, 2)) + "%"
 
     if avrgs:
         for i in range(0, len(average_totals)):
-            percentage = (average_totals[0] - average_totals[i]) * 100 / average_totals[0]
+            percentage = -(average_totals[0] - average_totals[i]) * 100 / average_totals[0]
             out += "," + str(round(percentage, 2)) + "%"
 
     return out
