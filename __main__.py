@@ -93,8 +93,12 @@ def main():
     ##### write data #####
     input_file_names = ip.get_file_names()
     write_output(output, ip.mutation + '_occupancies.dat')
-    output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
-                  input_file_names, ip.mutation)
+    if len(ip.input) < 21:
+        output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
+                      input_file_names, ip.mutation)
+        print("No pdf gets generated if there are more than 20 trajectories. Please refer to " + ip.mutation +
+              '_occupancies.dat to retrieve occupancy values')
+
     if ip.calc_averages:
         totals, percentages = write_percentages_quotients(output, ip.mutation + "_percentage_quotients.dat")
         trajectories = ip.get_trajectories()
