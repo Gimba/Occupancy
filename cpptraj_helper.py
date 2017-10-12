@@ -270,7 +270,7 @@ def read_cpptraj_data_contacts_distance(file_name):
     return out
 
 
-# reads in the specfied file and returns a list that contains elements consisting of the two contacting atoms and
+# reads in the specified file and returns a list that contains elements consisting of the two contacting atoms and
 # frame count (e.g. [[[246@N, 23@C],2], [[246@H, 23@CB], 3],...]
 def read_cpptraj_data_contacts_frames(file_name):
     out = []

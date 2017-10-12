@@ -510,6 +510,7 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
     for item in fig.axes:
         item.legend(bbox_to_anchor=(1.13, 1.0))
         plt.setp(item.axes, xticks=x_ticks, xticklabels=trajectories)
+        item.axes.set_xlim([x_ticks[0], x_ticks[-1]])
         for tick in item.get_xticklabels():
             tick.set_rotation(45)
             tick.set_ha('right')
