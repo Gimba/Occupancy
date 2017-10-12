@@ -1,3 +1,4 @@
+import math
 from os import remove
 from os import rename
 
@@ -279,12 +280,16 @@ def write_percentages_quotients(output, file_name):
     #         f.write(item + "\n")
     return totals, percentages
 
+
 # write occupancy data to pdf file
 def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
     file_name = investigated_residue
     f = file_name + '0_occupancies.pdf'
     width = 595
     height = 842
+    if len(input_list) > 8:
+        width = 842
+        height = 595
     surface = cairo.PDFSurface(f, width, height)
     ctx = cairo.Context(surface)
 
@@ -292,8 +297,9 @@ def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
     if avrgs:
         avrgs_start = len(input_list) + 1
 
-    font_size = 60 / len(input_list)
-    offset = (width - 70) / ((len(input_list) * 2) + 1)
+    offset = (width - 50) / ((len(input_list) * 2) + 1)
+    font_size = (offset / 7) + 12 - math.sqrt(len(input_list))
+
     # title
     ctx.set_font_size(font_size)
     ctx.set_source_rgb(0, 0, 0)
@@ -309,7 +315,9 @@ def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
     ctx.show_text(title)
 
     ctx.set_font_size(font_size - 4)
-    y = font_size + 30
+    y = font_size + 35
+
+    # column headers
     counter = 0
     for item in input_list:
         ctx.move_to(font_size, y)
@@ -329,9 +337,10 @@ def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
         line = line.split(',')
         ctx.set_source_rgb(0, 0, 0)
 
+        # row name
         ctx.move_to(x, y)
         ctx.show_text(line[0])
-        x += offset + 45
+        x += offset + 20
 
         # coloring, select lines with atoms as well as summation
         if len(line[0]) > 0 and line[0][0].isdigit() or line[0] == 'SUM':
@@ -373,14 +382,14 @@ def output_to_pdf(output, avrgs, wat, hydro, input_list, investigated_residue):
 
         y += font_size - 4
         x = font_size
-        if y > 820:
+        if y > height - 20:
             pages += 1
             files.append(f)
             surface.finish()
             surface.flush()
             f = file_name + str(pages) + '_occupancies.pdf'
             files.append(f)
-            surface = cairo.PDFSurface(f, 595, 842)
+            surface = cairo.PDFSurface(f, width, height)
             ctx = cairo.Context(surface)
             ctx.set_font_size(font_size - 6)
             y = font_size + 10
@@ -418,8 +427,8 @@ def add_headers(lst, avrgs):
     header = []
     columns = len(lst[0])
     if avrgs:
-        top_header[int(columns / 4)] = "Occupancies Contact Atoms"
-        top_header[int(1.5 * columns / 2) - 1] = "Occupancy Averages Structure"
+        top_header[1] = "Occupancies Contact Atoms"
+        top_header[int(columns / 2) + 1] = "Occupancy Averages Structure"
 
         for i in range(0, int(columns / 2)):
             header.append("#" + str(i))
