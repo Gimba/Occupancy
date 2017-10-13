@@ -1,4 +1,6 @@
 import argparse
+import copy
+import multiprocessing
 import sys
 
 import cpptraj_helper as cpp
@@ -44,14 +46,19 @@ def main():
     initial_contact_atoms = cpp.get_residue_contacting_atoms(ip.input[0][0], ip.input[0][1], ip.input[0][2],
                                                              ip.input[0][3], ip.mutation, ip.strip_water,
                                                              ip.strip_hydro)
+
+    # set up multiprocessing
+    pool = multiprocessing.Pool()
+    input_list = copy.deepcopy(ip.input)
+
     occupancies = []
-    for item in ip.input:
-        occupancies.append(cpp.get_occupancy_of_atoms(item[0], item[1], item[2], item[3], initial_contact_atoms,
-                                                      ip.strip_water, ip.strip_hydro))
+    for item in input_list:
+        item += [initial_contact_atoms, ip.strip_water, ip.strip_hydro]
+
+    occupancies.append(pool.map(cpp.get_occupancy_of_atoms, input_list))
 
     ##### calculate average occupancies #####
     if ip.calc_averages:
-
         # generate pdb
         pdb_file_name = cpp.generate_pdb(ip.input[0][0], ip.input[0][1], "1", "1", 0, 1)
         pdb = Pdb(pdb_file_name)
@@ -68,15 +75,24 @@ def main():
         contacting_atoms_types = pdb.get_atom_types(initial_contact_atoms)
 
         averages = []
-        for item in ip.input:
-            averages.append(cpp.get_contact_averages_of_types(item[0], item[1], item[2], item[3], contacting_atoms_types
-                                                              , ip.mask1, ip.mask2, ip.strip_water, ip.strip_hydro))
+        input_list = []
+        # item[0], item[1], item[2], item[3], contacting_atoms_types, ip.mask1, ip.mask2, ip.strip_water, ip.strip_hydro
+        for item2 in ip.input:
+            input_list.append(
+                [item2[0], item2[1], item2[2], item2[3], contacting_atoms_types, ip.mask1, ip.mask2, ip.strip_water,
+                 ip.strip_hydro])
+
+        averages.append(pool.map(cpp.get_contact_averages_of_types, input_list))
+
+
+    pool.close()
+    pool.join()
 
     ##### reformat data #####
-    occupancies = reformat_occupancies_list(occupancies)
+    occupancies = reformat_occupancies_list(occupancies[0])
 
     if ip.calc_averages:
-        for item in averages:
+        for item in averages[0]:
             occupancies = add_averages_column(occupancies, item)
 
     # add headers
@@ -96,6 +112,7 @@ def main():
     if len(ip.input) < 21:
         output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
                       input_file_names, ip.mutation)
+    else:
         print("No pdf gets generated if there are more than 20 trajectories. Please refer to " + ip.mutation +
               '_occupancies.dat to retrieve occupancy values')
 

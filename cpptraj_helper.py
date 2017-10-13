@@ -1,6 +1,5 @@
 import os
 import subprocess
-import timeit
 from collections import Counter
 
 from list_helper import *
@@ -11,13 +10,13 @@ def run_cpptraj(prmtop, trajin, cpptraj_file):
     cpptraj = 'cpptraj -p ' + prmtop + ' -y ' + trajin + ' -i ' + cpptraj_file + ' > ' + cpptraj_file.replace('.',
                                                                                                               '_') + ".log"
     print cpptraj
-    start = timeit.default_timer()
+    # start = timeit.default_timer()
     os.system(cpptraj)
-    stop = timeit.default_timer()
-    elapsed = round(stop - start)
-    minutes = str(int(elapsed / 60))
-    seconds = str(int(elapsed % 60))
-    print minutes + " minutes " + seconds + " seconds"
+    # stop = timeit.default_timer()
+    # elapsed = round(stop - start)
+    # minutes = str(int(elapsed / 60))
+    # seconds = str(int(elapsed % 60))
+    # print minutes + " minutes " + seconds + " seconds"
 
 
 # creates a cpptraj file to generate a pdb from the given inputs. Returns name of cpptraj file and name of pdb file.
@@ -140,7 +139,14 @@ def extract_atoms(atoms, residue):
 
 
 # get the occupancy of the given atoms
-def get_occupancy_of_atoms(prmtop, trajin, start_frame, end_frame, atoms, strip_water, strip_hydrogen):
+def get_occupancy_of_atoms(lst):
+    prmtop = lst[0]
+    trajin = lst[1]
+    start_frame = lst[2]
+    end_frame = lst[3]
+    atoms = lst[4]
+    strip_water = lst[5]
+    strip_hydrogen = lst[6]
     cpptraj_file = create_contact_cpptraj(prmtop, trajin, start_frame, end_frame, atoms, ['1-500000'], strip_water,
                                           strip_hydrogen)
     trajin = trajin_start_end(trajin, start_frame, end_frame)
@@ -183,7 +189,16 @@ def get_trajectory_length(prmtop, trajin):
 # returns the averages for atoms types given in the topology and trajectory files. Since we are normally not
 # interested in the calculation of the occupancy of solvent atoms, these could be excluded by giving appropriate
 # residue masks
-def get_contact_averages_of_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2, wat, hydro):
+def get_contact_averages_of_types(lst):
+    prmtop = lst[0]
+    trajin = lst[1]
+    start_frame = lst[2]
+    end_frame = lst[3]
+    types = lst[4]
+    mask1 = lst[5]
+    mask2 = lst[6]
+    wat = lst[7]
+    hydro = lst[8]
     model_contacts_mutated = create_contact_cpptraj_types(prmtop, trajin, start_frame, end_frame, types, mask1, mask2,
                                                           wat, hydro)
     trajin = trajin_start_end(trajin, start_frame, end_frame)
@@ -191,6 +206,7 @@ def get_contact_averages_of_types(prmtop, trajin, start_frame, end_frame, types,
 
     frames = int(end_frame) - int(start_frame) + 1
     avrgs = get_type_contacts(model_contacts_mutated[1], frames)
+
     return avrgs
 
 
