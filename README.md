@@ -31,4 +31,4 @@ is a flag that is set to calculate average contacts of atom types over the whole
 
 
 ## Output
-Output are most of all list in pdf format (in the above example: 23_occupancies.pdf), a list in text format (in the above example: 23_occupancies.dat) and a plot of the total contacts and structure average contacts values of residues, as well as percentages. Further all calculation steps are logged.
+Calculated values are output in pdf format (in the above example: 23_occupancies.pdf), as a table in text format (in the above example: 23_occupancies.dat) and a plot of the total contacts and structure average contacts values of residues, as well as percentages. Further all calculation steps are logged.
