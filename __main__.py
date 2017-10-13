@@ -14,7 +14,7 @@ def main():
     parser.add_argument('-r', '--residue', help='investigated residue')
     parser.add_argument('-i', '--input', nargs='?',
                         help='list of inputs (e.g. "model1.prmtop model1.incprd mutation.prmtop prod_1.nc 1 20, ...")')
-    parser.add_argument('-f', '--output_folder', nargs='?', help='set output folder (default: "occupancies")')
+    # parser.add_argument('-f', '--output_folder', nargs='?', help='set output folder (default: "occupancies")')
     parser.add_argument('-m1', '--mask1', nargs='?', help='mask for calculation of average occupancies (e.g. '
                                                           '1-582; default: solute-solute contacts excluded)')
     parser.add_argument('-m2', '--mask2', nargs='?', help='second mask determines what residues are used to '
