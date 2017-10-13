@@ -3,7 +3,7 @@ Script to get atomic contacts of topologies with according trajectories. Contact
 ## Installation
 To use the script only the file 'Occupancy.zip' needs to be downloaded. Save it to a folder that is part of your environment variable PATH (http://www.linfo.org/path_env_var.html) or add the folder you want to keep 'Occupancy.zip' to PATH. 
 ## Usage
-Here are examples how to use it:
+Here is an example how to use it:
 
 
 `python Occupancy.zip -r 23 -i "WT.prmtop WT.inpcrd  F2196A.prmtop F2196A.inpcrd  F2196A.prmtop prod_1.nc 101 200 F2196A.prmtop prod_2.nc 101 200" -hy -a`
@@ -19,6 +19,8 @@ Here are examples how to use it:
 
 
 -a: is a flag that is set to calculate average contacts of atom types over the whole structure. These values are added to the output as a seperate set of columns. Only those types are calculated that occur in the contacting atoms. With these averages we can comprehend how contacting atom contacts differ from average of the structure.
+
+
 
 ## Output
 Output are most of all list in pdf format (in the above example: 23_occupancies.pdf), a list in text format (in the above example: 23_occupancies.dat) and a plot of the total contacts and structure average contacts values of residues, as well as percentages. Further all calculation steps are logged.
