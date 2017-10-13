@@ -109,11 +109,11 @@ def main():
     ##### write data #####
     input_file_names = ip.get_file_names()
     write_output(output, ip.mutation + '_occupancies.dat')
-    if len(ip.input) < 21:
+    if len(ip.input) < 23:
         output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
                       input_file_names, ip.mutation)
     else:
-        print("No pdf gets generated if there are more than 20 trajectories. Please refer to " + ip.mutation +
+        print("No pdf gets generated if there are more than 22 trajectories. Please refer to " + ip.mutation +
               '_occupancies.dat to retrieve occupancy values')
 
     if ip.calc_averages:
