@@ -1,5 +1,5 @@
 # Occupancy
-Script to get atomic contacts of topologies with according trajectories. Contacts are defined by a distance not more than 3.9A.
+Script to get atomic contacts of atoms contacting a specified residue of topologies with according trajectories. Contacts are defined by a distance not more than 3.9A.
 ## Installation
 To use the script only the file 'Occupancy.zip' needs to be downloaded. Save it to a folder that is part of your environment variable PATH (http://www.linfo.org/path_env_var.html) or add the folder you want to keep 'Occupancy.zip' to PATH. 
 ## Usage
