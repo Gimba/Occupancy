@@ -465,10 +465,13 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
     # choose colors of lines
     NUM_COLORS = len(totals)
     cm = plt.get_cmap('Paired')
-    fig = plt.figure(figsize=(60, 30))
+    fig = plt.figure(figsize=(11.69, 8.27))
 
     gs = gridspec.GridSpec(nrows=2, ncols=2)
     x_ticks = range(0, len(trajectories))
+
+    # use only trajectory names, omit frames
+    trajectories = [x.split()[0] for x in trajectories]
 
     ax = fig.add_subplot(gs[0, 0])
     count = 1
@@ -481,15 +484,19 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
         ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
-        ax.set_ylabel(r'Atoms within 3.9A')
+        ax.set_ylabel(r'Atoms within 3.9A', fontsize=10)
         count += 1
+
+    # labels for total values
+    lbl_contacting_atoms = "substitution contacting atoms"
+    lbl_structure_avrgs = "structure averages"
 
     # plot total occupancy values
     color = cm(float(count) / NUM_COLORS)
     ax = fig.add_subplot(gs[0, 1])
-    ax.plot(totals[-1][1:columns], c=color, label='total')
-    ax.plot(totals[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
-    ax.set_ylabel(r'Atoms within 3.9A')
+    ax.plot(totals[-1][1:columns], c=color, label=lbl_contacting_atoms)
+    ax.plot(totals[-1][columns:], c=color, dashes=[30, 5, 10, 5], label=lbl_structure_avrgs)
+    ax.set_ylabel(r'Atoms within 3.9A', fontsize=10)
 
     # plot percentage values
     ax = fig.add_subplot(gs[1, 0])
@@ -503,27 +510,39 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
         # plot average values of the whole structure
         item2 = [float(x) for x in item[columns:]]
         ax.plot(item2, c=color, dashes=[30, 5, 10, 5])
-        ax.set_ylabel("%")
+        ax.set_ylabel("%", fontsize=10)
         count += 1
 
     # plot average percentage values
     color = cm(float(count) / NUM_COLORS)
     ax = fig.add_subplot(gs[1, 1])
-    ax.plot(percentages[-1][1:columns], c=color, label='total')
-    ax.plot(percentages[-1][columns:], c=color, dashes=[30, 5, 10, 5], label='average')
-    ax.set_ylabel("%")
+    ax.plot(percentages[-1][1:columns], c=color, label=lbl_contacting_atoms)
+    ax.plot(percentages[-1][columns:], c=color, dashes=[30, 5, 10, 5], label=lbl_structure_avrgs)
+    ax.set_ylabel("%", fontsize=10)
 
     plt.subplots_adjust(bottom=0.12, hspace=0.35)
 
     # rotate xticks, show and move legend
+    count = 0
     for item in fig.axes:
-        item.legend(bbox_to_anchor=(1.13, 1.0))
+        if count % 2 == 0:
+            item.legend(ncol=3, bbox_to_anchor=(1.05, 1.15), fancybox=True, prop={'size': 8})
+        count += 1
         plt.setp(item.axes, xticks=x_ticks, xticklabels=trajectories)
         item.axes.set_xlim([x_ticks[0], x_ticks[-1]])
         for tick in item.get_xticklabels():
-            tick.set_rotation(45)
+            tick.set_rotation(70)
             tick.set_ha('right')
-    plt.savefig('plot.png')
+            tick.set_fontsize(6)
+        for ytick in item.get_yticklabels():
+            ytick.set_fontsize(6)
+
+            # save plot to file
+    plot_file_name = trajectories[1].split("/")[-1].split(".")[0]
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.88)
+    plt.suptitle("Atom contacts of substitution contacting atoms and average values of contacts of structure atoms")
+    plt.savefig(plot_file_name + '.png')
     # plt.show()
 
 
