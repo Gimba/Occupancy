@@ -7,4 +7,6 @@
 /input_files2
 *.zip
 /out*
+/test
+/.idea
 
