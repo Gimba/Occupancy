@@ -550,7 +550,7 @@ def plot_total_values(totals, percentages, trajectories, avrgs):
 def map_residues(mapping, lst):
     with open(mapping, 'r') as f:
         mapping = f.read().splitlines()
-        mapping = [item.split() for item in mapping]
+        mapping = [item.split(',') for item in mapping]
 
         for element in lst:
             for item in mapping:
