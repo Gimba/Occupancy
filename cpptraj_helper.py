@@ -115,7 +115,7 @@ def get_atom_contacts(data_file, index, frames):
     out = []
     for item in type_occupancies:
         item = list(item)
-        item[1] = round(item[1] / frames, 2)
+        item[1] = round(item[1] / float(frames), 2)
         out.append(item)
     return out
 
