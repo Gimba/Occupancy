@@ -558,3 +558,17 @@ def map_residues(mapping, lst):
                     element[0] = item[1] + '@' + element[0].split('@')[1]
 
     return lst
+
+
+# transform residue number used in title of pdf files and file names using a mapping file
+def map_mutation_residue(mapping, number):
+    with open(mapping, 'r') as f:
+        mapping = f.read().splitlines()
+        mapping = [item.split(',') for item in mapping]
+
+        for item in mapping:
+            if number == item[0]:
+                number = item[1]
+                break
+
+    return number

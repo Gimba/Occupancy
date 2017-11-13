@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import argparse
 import copy
 import multiprocessing
@@ -109,9 +111,11 @@ def main():
     ##### write data #####
     input_file_names = ip.get_file_names()
     write_output(output, ip.mutation + '_occupancies.dat')
+    if ip.mapping:
+        investigated_residue = map_mutation_residue(ip.mapping, ip.mutation)
     if len(ip.input) < 23:
         output_to_pdf(output, ip.calc_averages, ip.strip_water, ip.strip_hydro,
-                      input_file_names, ip.mutation)
+                      input_file_names, investigated_residue)
     else:
         print("No pdf gets generated if there are more than 22 trajectories. Please refer to " + ip.mutation +
               '_occupancies.dat to retrieve occupancy values')
