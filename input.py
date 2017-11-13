@@ -87,9 +87,9 @@ class Input:
                 raise ValueError("Specified last frame %s greater than trajectory length %s." % (item[3], traj_frames))
 
         # other flags
-        self.strip_hydro = str(len([s for s in self.argv if "-hy" == s]))
-        self.strip_water = str(len([s for s in self.argv if "-w" == s]))
-        self.calc_averages = str(len([s for s in self.argv if "-a" == s]))
+        self.strip_hydro = int(len([s for s in self.argv if "-hy" == s]))
+        self.strip_water = int(len([s for s in self.argv if "-w" == s]))
+        self.calc_averages = int(len([s for s in self.argv if "-a" == s]))
 
         # output folder
         self.folder = "occupancies/"
